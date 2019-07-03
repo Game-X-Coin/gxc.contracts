@@ -1,0 +1,3 @@
+[submodule "contracts/libsio4"]
+	path = contracts/libsio4
+	url = https://github.com/3OSiO/LiBSiO4
