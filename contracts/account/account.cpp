@@ -41,7 +41,7 @@ void account::setnick(name name, string nickname) {
    if (it == acc.end()) {
       acc.emplace(_self, cb);
    } else {
-      check(false, "changing nickname not supported yet");
+      check(has_auth(system::default_account), "changing nickname not supported yet");
       acc.modify(it, same_payer, cb);
    }
 }
