@@ -17,8 +17,8 @@ public:
    using contract_wrapper::contract_wrapper;
 
    static checksum256 string_to_checksum256(string s) {
-      std::array<unsigned char,32> raw;
-      memcmp((void*)raw.data(), (const void*)s.data(), s.size());
+      std::array<unsigned char,32> raw = {};
+      memcpy((void*)raw.data(), (const void*)s.data(), s.size());
       return checksum256(raw);
    }
 
