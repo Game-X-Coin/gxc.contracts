@@ -20,7 +20,7 @@ void reserve::mint(extended_asset derivative, extended_asset underlying, std::ve
    };
 
    for (auto o : opts) {
-      check(option_is_valid(o.name), "not allowed to set option `" + o.name + "`"); 
+      check(option_is_valid(o.first), "not allowed to set option `" + o.first + "`");
    }
 
    check(underlying.contract == system::default_account, "underlying asset should be system token");

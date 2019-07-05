@@ -12,33 +12,33 @@ constexpr name active_permission{"active"_n};
 
 void token_impl::_setopts(token::stat& s, const std::vector<option>& opts, bool init) {
    for (auto o: opts) {
-      if (o.name == "paused") {
-         s.option(opt::paused, o.value.as<bool>());
-      } else if (o.name == "whitelist_on") {
-         s.option(opt::whitelist_on, o.value.as<bool>());
+      if (o.first == "paused") {
+         s.option(opt::paused, o.second.as<bool>());
+      } else if (o.first == "whitelist_on") {
+         s.option(opt::whitelist_on, o.second.as<bool>());
       } else {
          // Below options can be configured only when creating token.
-         check(init, "not allowed to change the option `" + o.name + "`");
+         check(init, "not allowed to change the option `" + o.first + "`");
 
-         if (o.name == "mintable") {
-            s.option(opt::mintable, o.value.as<bool>());
-         } else if (o.name == "recallable") {
-            s.option(opt::recallable, o.value.as<bool>());
-         } else if (o.name == "freezable") {
-            s.option(opt::freezable, o.value.as<bool>());
-         } else if (o.name == "pausable") {
-            s.option(opt::pausable, o.value.as<bool>());
-         } else if (o.name == "whitelistable") {
-            s.option(opt::whitelistable, o.value.as<bool>());
-         } else if (o.name == "withdraw_min_amount") {
-            auto value = o.value.as<int64_t>();
+         if (o.first == "mintable") {
+            s.option(opt::mintable, o.second.as<bool>());
+         } else if (o.first == "recallable") {
+            s.option(opt::recallable, o.second.as<bool>());
+         } else if (o.first == "freezable") {
+            s.option(opt::freezable, o.second.as<bool>());
+         } else if (o.first == "pausable") {
+            s.option(opt::pausable, o.second.as<bool>());
+         } else if (o.first == "whitelistable") {
+            s.option(opt::whitelistable, o.second.as<bool>());
+         } else if (o.first == "withdraw_min_amount") {
+            auto value = o.second.as<int64_t>();
             check(value >= 0, "withdraw_min_amount should be positive");
             s.amount.emplace(asset(value, s.supply.symbol));
-         } else if (o.name == "withdraw_delay_sec") {
-            auto value = o.value.as<uint64_t>();
+         } else if (o.first == "withdraw_delay_sec") {
+            auto value = o.second.as<uint64_t>();
             s.duration.emplace(static_cast<uint32_t>(value));
          } else {
-            check(false, "unknown option `" + o.name + "`");
+            check(false, "unknown option `" + o.first + "`");
          }
       }
    }

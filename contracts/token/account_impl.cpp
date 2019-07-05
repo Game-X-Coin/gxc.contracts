@@ -17,18 +17,18 @@ void account_impl::setopts(const std::vector<option>& opts) {
 
    modify(ram_payer, [&](auto& a) {
       for (auto o: opts) {
-         if (o.name == "frozen") {
+         if (o.first == "frozen") {
             check(_st->option(token_impl::opt::freezable), "not configured to freeze account");
-            auto value = o.value.as<bool>();
+            auto value = o.second.as<bool>();
             check(a.option(opt::frozen) != value, "option already has given value");
             a.option(opt::frozen, value);
-         } else if (o.name == "whitelist") {
+         } else if (o.first == "whitelist") {
             check(_st->option(token_impl::opt::whitelistable), "not configured to whitelist account");
-            auto value = o.value.as<bool>();
+            auto value = o.second.as<bool>();
             check(a.option(opt::whitelist) != value, "option already has given value");
             a.option(opt::whitelist, value);
          } else {
-            check(false, "unknown option `" + o.name + "`");
+            check(false, "unknown option `" + o.first + "`");
          }
       }
    });
