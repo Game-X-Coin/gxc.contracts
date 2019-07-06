@@ -35,6 +35,8 @@ void account_impl::setopts(const std::vector<option>& opts) {
 }
 
 void account_impl::open() {
+   check(is_account(owner()), "owner account does not exist");
+
    if (!exists()) {
       emplace(ram_payer, [&](auto& a) {
          a.balance.symbol = _st->supply.symbol;
