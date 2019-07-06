@@ -73,7 +73,10 @@ public:
 
    gxc_token_tester() {
       produce_blocks(2);
-      create_accounts({ N(conr2d), N(eun2ce), default_account_name });
+      create_accounts({ N(conr2d), N(eun2ce), N(ian), default_account_name });
+      if (basename(config::system_account_name) != N(gxc)) {
+         create_accounts({ null_account_name });
+      }
       produce_blocks(2);
 
       set_code(default_account_name, contracts::token_wasm());
@@ -277,7 +280,7 @@ BOOST_FIXTURE_TEST_CASE(mint_max_decimals, gxc_token_tester) try {
    produce_blocks(1);
 
 
-   asset max(10, symbol(SY(0, ENC)));
+   asset max(10, symbol(SY(0,ENC)));
    // 1.0000 0000 0000 0000 000 => 0x8ac7230489e80000L
    share_type amount = 0x8ac7230489e80000L;
    static_assert(sizeof(share_type) <= sizeof(asset), "asset changed so test is no longer valid");
@@ -367,7 +370,7 @@ BOOST_FIXTURE_TEST_CASE(retire_tests, gxc_token_tester) try {
       transfer(N(conr2d), N(eun2ce), {asset::from_string("200.000 HOBL"), N(conr2d)}, "hola")
    );
    //should fail to retire since tokens are not on the issuer's balance
-   BOOST_REQUIRE_EQUAL(wasm_assert_msg("overdraw balance"),
+   BOOST_REQUIRE_EQUAL(wasm_assert_msg("overdrawn balance"),
       transfer(N(conr2d), null_account_name, {asset::from_string("300.000 HOBL"), N(conr2d)}, "hola")
    );
    //transfer tokens back
@@ -393,6 +396,76 @@ BOOST_FIXTURE_TEST_CASE(retire_tests, gxc_token_tester) try {
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("overdrawn balance"),
       transfer(N(conr2d), null_account_name, {asset::from_string("1.000 HOBL"), N(conr2d)}, "hola")
    );
+
+} FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(open_tests, gxc_token_tester) try {
+
+   mint({asset::from_string("1000 HOBL"), N(conr2d)});
+   BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "0,HOBL", N(conr2d)).is_null());
+   BOOST_REQUIRE_EQUAL(success(),
+      transfer(null_account_name, N(conr2d), {asset::from_string("1000 HOBL"), N(conr2d)}, "issue", N(conr2d))
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "0,HOBL", N(conr2d)), mvo()
+      ("balance", "1000 HOBL")
+      ("issuer_", "conr2d")
+   );
+
+   BOOST_REQUIRE_EQUAL(true, get_account(N(eun2ce), "0,HOBL", N(conr2d)).is_null());
+
+   BOOST_REQUIRE_EQUAL(wasm_assert_msg("owner account does not exist"),
+      open(N(nonexistent), {symbol(SY(0,HOBL)).to_symbol_code(), N(conr2d)}, N(conr2d))
+   );
+   BOOST_REQUIRE_EQUAL(success(),
+      open(N(eun2ce), {symbol(SY(0,HOBL)).to_symbol_code(), N(conr2d)}, N(conr2d))
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "0,HOBL", N(conr2d)), mvo()
+      ("balance", "0 HOBL")
+      ("issuer_", "conr2d")
+   );
+
+   BOOST_REQUIRE_EQUAL(success(), transfer(N(conr2d), N(eun2ce), {asset::from_string("200 HOBL"), N(conr2d)}, "hola"));
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "0,HOBL", N(conr2d)), mvo()
+      ("balance", "200 HOBL")
+      ("issuer_", "conr2d")
+   );
+
+   BOOST_REQUIRE_EQUAL(wasm_assert_msg("token not found"),
+      open(N(ian), {symbol(SY(0,INVALID)).to_symbol_code(), N(conr2d)}, N(conr2d))
+   );
+
+} FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(close_tests, gxc_token_tester) try {
+
+   mint({asset::from_string("1000 HOBL"), N(conr2d)}, {{"whitelistable", {1}}, {"whitelist_on", {1}}});
+
+   BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "0,HOBL", N(conr2d)).is_null());
+
+   BOOST_REQUIRE_EQUAL(success(),
+      transfer(null_account_name, N(conr2d), {asset::from_string("1000 HOBL"), N(conr2d)}, "hola", N(conr2d))
+   );
+
+   // non-whitelisted account of zero balance is deleted without explicit close
+   setacntsopts({N(conr2d)}, {symbol(SY(0,HOBL)).to_symbol_code(), N(conr2d)}, {{"whitelist", {1}}});
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "0,HOBL", N(conr2d)), mvo()
+      ("balance", "1000 HOBL")
+      ("issuer_", "conr2d......2")
+   );
+
+   BOOST_REQUIRE_EQUAL(success(), transfer(N(conr2d), N(eun2ce), {asset::from_string("1000 HOBL"), N(conr2d)}, "hola"));
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "0,HOBL", N(conr2d)), mvo()
+      ("balance", "0 HOBL")
+      ("issuer_", "conr2d......2")
+   );
+
+   BOOST_REQUIRE_EQUAL(success(), close(N(conr2d), {symbol(SY(0,HOBL)).to_symbol_code(), N(conr2d)}));
+   BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "0,HOBL", N(conr2d)).is_null());
 
 } FC_LOG_AND_RETHROW()
 
