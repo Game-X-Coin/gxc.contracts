@@ -99,7 +99,7 @@ void token_impl::issue(name to, extended_asset value) {
 
    auto _to = get_account(to);
 
-   if (_this->option(opt::recallable) && (to != value.contract)) {
+   if (_this->option(opt::recallable) && (to != basename(value.contract))) {
       _to.paid_by(code()).add_deposit(value);
    } else {
       _to.paid_by(payer).add_balance(value);
@@ -115,7 +115,7 @@ void token_impl::retire(name from, extended_asset value) {
    bool is_recall = false;
 
    if (!has_auth(from)) {
-      check(_this->option(opt::recallable) && has_vauth(value.contract), "Missing required authority");
+      check(_this->option(opt::recallable) && has_vauth(value.contract), "missing required authority");
       is_recall = true;
    }
 
@@ -134,7 +134,7 @@ void token_impl::retire(name from, extended_asset value) {
 
 void token_impl::burn(name owner, extended_asset value) {
    check((owner == basename(value.contract) && has_vauth(value.contract)) ||
-         (owner == code() && has_auth(code())), "Missing required authority");
+         (owner == code() && has_auth(code())), "missing required authority");
    check_asset_is_valid(value);
 
    //TODO: check game account
@@ -153,7 +153,9 @@ void token_impl::transfer(name from, name to, extended_asset value) {
    check(is_account(to), "`to` account does not exist");
 
    check_asset_is_valid(value);
-   check(!_this->option(opt::paused) || from == basename(value.contract) || to == basename(value.contract), "token is paused");
+   check(!_this->option(opt::paused)
+         || from == basename(value.contract) || to == basename(value.contract)
+         || from == code() || to == code(), "token is paused");
 
    bool is_recall = false;
    bool is_allowed = false;
@@ -166,7 +168,7 @@ void token_impl::transfer(name from, name to, extended_asset value) {
          auto it = _allowed.find(token::allowance{to, value.quantity, value.contract}.primary_key());
          is_allowed = (it != _allowed.end());
       }
-      check(is_recall || is_allowed, "Missing required authority");
+      check(is_recall || is_allowed, "missing required authority");
    }
 
    // subtract asset from `from`
