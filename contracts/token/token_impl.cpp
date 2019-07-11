@@ -12,33 +12,33 @@ constexpr name active_permission{"active"_n};
 
 void token_impl::_setopts(token::stat& s, const std::vector<option>& opts, bool init) {
    for (auto o: opts) {
-      if (o.name == "paused") {
-         s.option(opt::paused, o.value.as<bool>());
-      } else if (o.name == "whitelist_on") {
-         s.option(opt::whitelist_on, o.value.as<bool>());
+      if (o.first == "paused") {
+         s.option(opt::paused, o.second.as<bool>());
+      } else if (o.first == "whitelist_on") {
+         s.option(opt::whitelist_on, o.second.as<bool>());
       } else {
          // Below options can be configured only when creating token.
-         check(init, "not allowed to change the option `" + o.name + "`");
+         check(init, "not allowed to change the option `" + o.first + "`");
 
-         if (o.name == "mintable") {
-            s.option(opt::mintable, o.value.as<bool>());
-         } else if (o.name == "recallable") {
-            s.option(opt::recallable, o.value.as<bool>());
-         } else if (o.name == "freezable") {
-            s.option(opt::freezable, o.value.as<bool>());
-         } else if (o.name == "pausable") {
-            s.option(opt::pausable, o.value.as<bool>());
-         } else if (o.name == "whitelistable") {
-            s.option(opt::whitelistable, o.value.as<bool>());
-         } else if (o.name == "withdraw_min_amount") {
-            auto value = o.value.as<int64_t>();
+         if (o.first == "mintable") {
+            s.option(opt::mintable, o.second.as<bool>());
+         } else if (o.first == "recallable") {
+            s.option(opt::recallable, o.second.as<bool>());
+         } else if (o.first == "freezable") {
+            s.option(opt::freezable, o.second.as<bool>());
+         } else if (o.first == "pausable") {
+            s.option(opt::pausable, o.second.as<bool>());
+         } else if (o.first == "whitelistable") {
+            s.option(opt::whitelistable, o.second.as<bool>());
+         } else if (o.first == "withdraw_min_amount") {
+            auto value = o.second.as<int64_t>();
             check(value >= 0, "withdraw_min_amount should be positive");
             s.amount.emplace(asset(value, s.supply.symbol));
-         } else if (o.name == "withdraw_delay_sec") {
-            auto value = o.value.as<uint64_t>();
+         } else if (o.first == "withdraw_delay_sec") {
+            auto value = o.second.as<uint64_t>();
             s.duration.emplace(static_cast<uint32_t>(value));
          } else {
-            check(false, "unknown option `" + o.name + "`");
+            check(false, "unknown option `" + o.first + "`");
          }
       }
    }
@@ -99,7 +99,7 @@ void token_impl::issue(name to, extended_asset value) {
 
    auto _to = get_account(to);
 
-   if (_this->option(opt::recallable) && (to != value.contract)) {
+   if (_this->option(opt::recallable) && (to != basename(value.contract))) {
       _to.paid_by(code()).add_deposit(value);
    } else {
       _to.paid_by(payer).add_balance(value);
@@ -115,7 +115,7 @@ void token_impl::retire(name from, extended_asset value) {
    bool is_recall = false;
 
    if (!has_auth(from)) {
-      check(_this->option(opt::recallable) && has_vauth(value.contract), "Missing required authority");
+      check(_this->option(opt::recallable) && has_vauth(value.contract), "missing required authority");
       is_recall = true;
    }
 
@@ -134,7 +134,7 @@ void token_impl::retire(name from, extended_asset value) {
 
 void token_impl::burn(name owner, extended_asset value) {
    check((owner == basename(value.contract) && has_vauth(value.contract)) ||
-         (owner == code() && has_auth(code())), "Missing required authority");
+         (owner == code() && has_auth(code())), "missing required authority");
    check_asset_is_valid(value);
 
    //TODO: check game account
@@ -153,7 +153,9 @@ void token_impl::transfer(name from, name to, extended_asset value) {
    check(is_account(to), "`to` account does not exist");
 
    check_asset_is_valid(value);
-   check(!_this->option(opt::paused) || from == basename(value.contract) || to == basename(value.contract), "token is paused");
+   check(!_this->option(opt::paused)
+         || from == basename(value.contract) || to == basename(value.contract)
+         || from == code() || to == code(), "token is paused");
 
    bool is_recall = false;
    bool is_allowed = false;
@@ -166,7 +168,7 @@ void token_impl::transfer(name from, name to, extended_asset value) {
          auto it = _allowed.find(token::allowance{to, value.quantity, value.contract}.primary_key());
          is_allowed = (it != _allowed.end());
       }
-      check(is_recall || is_allowed, "Missing required authority");
+      check(is_recall || is_allowed, "missing required authority");
    }
 
    // subtract asset from `from`

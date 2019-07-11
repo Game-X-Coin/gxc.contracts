@@ -33,7 +33,7 @@ public:
       name issuer() const { return name(issuer_.value & ~0xFULL); }
       void issuer(name issuer) { issuer_ = name(issuer.value | (issuer_.value & 0xFULL)); }
 
-      bool option(opt n) const { return (issuer_.value >> (0 + n)) & 0x1; }
+      bool option(opt n) const { return !!(issuer_.value & (0x1 << n)); }
       void option(opt n, bool val) {
          if (val) issuer_.value |= 0x1 << n;
          else     issuer_.value &= ~(0x1 << n);

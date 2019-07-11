@@ -17,28 +17,36 @@ void account_impl::setopts(const std::vector<option>& opts) {
 
    modify(ram_payer, [&](auto& a) {
       for (auto o: opts) {
-         if (o.name == "frozen") {
+         if (o.first == "frozen") {
             check(_st->option(token_impl::opt::freezable), "not configured to freeze account");
-            auto value = o.value.as<bool>();
+            auto value = o.second.as<bool>();
             check(a.option(opt::frozen) != value, "option already has given value");
             a.option(opt::frozen, value);
-         } else if (o.name == "whitelist") {
+         } else if (o.first == "whitelist") {
             check(_st->option(token_impl::opt::whitelistable), "not configured to whitelist account");
-            auto value = o.value.as<bool>();
+            auto value = o.second.as<bool>();
             check(a.option(opt::whitelist) != value, "option already has given value");
             a.option(opt::whitelist, value);
          } else {
-            check(false, "unknown option `" + o.name + "`");
+            check(false, "unknown option `" + o.first + "`");
          }
       }
    });
 }
 
 void account_impl::open() {
+   check(is_account(owner()), "owner account does not exist");
+
    if (!exists()) {
       emplace(ram_payer, [&](auto& a) {
          a.balance.symbol = _st->supply.symbol;
          a.issuer(_st->issuer);
+         if (_st->option(token_impl::opt::recallable)) {
+            a.deposit.emplace(asset(0, _st->supply.symbol));
+         }
+         if (_st->option(token_impl::opt::whitelist_on)) {
+            a.option(opt::whitelist, has_vauth(_st->issuer));
+         }
       });
    }
 }
@@ -79,7 +87,7 @@ void account_impl::sub_balance(extended_asset value) {
    check_account_is_valid();
    check(_this->balance.amount >= value.quantity.amount, "overdrawn balance");
 
-   if (!_this->option(opt::frozen) && !_this->option(opt::whitelist) && !keep_balance &&
+   if (!_this->option(opt::frozen) && (!_this->option(opt::whitelist) || code() == owner()) && !keep_balance &&
        _this->balance.amount == value.quantity.amount && (!_this->deposit || _this->deposit->amount == 0))
    {
       erase();
@@ -92,12 +100,15 @@ void account_impl::sub_balance(extended_asset value) {
 
 void account_impl::add_balance(extended_asset value) {
    if (!exists()) {
-      check(!_st->option(token_impl::opt::whitelist_on) || has_vauth(value.contract), "required to open balance manually");
+      bool whitelist = false;
+      check(!_st->option(token_impl::opt::whitelist_on) ||
+            (whitelist = (code() == owner()) || has_vauth(value.contract)), "required to open balance manually");
       emplace(ram_payer, [&](auto& a) {
          a.balance = value.quantity;
          if (_st->option(token_impl::opt::recallable))
             a.deposit.emplace(asset(0, value.quantity.symbol));
          a.issuer(value.contract);
+         a.option(opt::whitelist, whitelist);
       });
    } else {
       check_account_is_valid();
@@ -111,7 +122,7 @@ void account_impl::sub_deposit(extended_asset value) {
    check_account_is_valid();
    check(_this->deposit->amount >= value.quantity.amount, "overdrawn deposit");
 
-   if (!_this->option(opt::frozen) && !_this->option(opt::whitelist) && !keep_balance &&
+   if (!_this->option(opt::frozen) && (!_this->option(opt::whitelist) || code() == owner()) && !keep_balance &&
        _this->deposit->amount == value.quantity.amount && _this->balance.amount == 0)
    {
       erase();
@@ -124,11 +135,14 @@ void account_impl::sub_deposit(extended_asset value) {
 
 void account_impl::add_deposit(extended_asset value) {
    if (!exists()) {
-      check(!_st->option(token_impl::opt::whitelist_on) || has_vauth(value.contract), "required to open deposit manually");
+      bool whitelist = false;
+      check(!_st->option(token_impl::opt::whitelist_on) ||
+            (whitelist = (code() == owner()) || has_vauth(value.contract)), "required to open deposit manually");
       emplace(ram_payer, [&](auto& a) {
          a.balance = asset(0, value.quantity.symbol);
          a.deposit.emplace(value.quantity);
          a.issuer(value.contract);
+         a.option(opt::whitelist, whitelist);
       });
    } else {
       check_account_is_valid();
@@ -150,7 +164,7 @@ void account_impl::sub_allowance(name spender, extended_asset value) {
    } else if (it.quantity == value.quantity) {
       _allowed.erase(it);
    } else {
-      check(false, "try transfering more than allowed");
+      check(false, "not possible to transfer more than allowed");
    }
 }
 

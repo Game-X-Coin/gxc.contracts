@@ -28,6 +28,7 @@ public:
 
    account_impl(name code, name scope, uint64_t key, const token_impl& st)
    : multi_index_wrapper(code, scope, key), _st(st)
+   , keep_balance(false), skip_valid(false), ram_payer(eosio::same_payer)
    {}
 
    void check_account_is_valid();
@@ -64,7 +65,7 @@ private:
    const token_impl& _st;
    bool  keep_balance;
    bool  skip_valid;
-   name  ram_payer = eosio::same_payer;
+   name  ram_payer;
 
    void sub_balance(extended_asset value);
    void add_balance(extended_asset value);

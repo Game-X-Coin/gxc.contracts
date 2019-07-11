@@ -5,9 +5,6 @@
 
 namespace gxc {
 
-struct option {
-   std::string name;
-   sio4::bytes value;
-};
+using option = std::pair<std::string,sio4::bytes>;
 
 }
