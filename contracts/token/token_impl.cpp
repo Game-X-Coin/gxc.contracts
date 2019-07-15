@@ -51,6 +51,7 @@ void token_impl::_setopts(token::stat& s, const std::vector<option>& opts, bool 
    }
 
    check((!s.amount && !s.duration) || (s.option(opt::recallable)), "non-recallable token can't have withdraw options");
+   check(!s.option(opt::floatable) || s.option(opt::recallable), "not allowed to set floatable");
    check(!s.option(opt::paused) || (init || s.option(opt::pausable)), "not allowed to set paused");
    check(!s.option(opt::whitelist_on) || s.option(opt::whitelistable), "not allowed to set whitelist");
 }
