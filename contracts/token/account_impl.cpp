@@ -19,12 +19,12 @@ void account_impl::setopts(const std::vector<option>& opts) {
       for (auto o: opts) {
          if (o.first == "frozen") {
             check(_st->option(token_impl::opt::freezable), "not configured to freeze account");
-            auto value = o.second.as<bool>();
+            auto value = unpack<bool>(o.second);
             check(a.option(opt::frozen) != value, "option already has given value");
             a.option(opt::frozen, value);
          } else if (o.first == "whitelist") {
             check(_st->option(token_impl::opt::whitelistable), "not configured to whitelist account");
-            auto value = o.second.as<bool>();
+            auto value = unpack<bool>(o.second);
             check(a.option(opt::whitelist) != value, "option already has given value");
             a.option(opt::whitelist, value);
          } else {
