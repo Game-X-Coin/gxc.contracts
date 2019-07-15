@@ -36,11 +36,30 @@ void reserve::mint(extended_asset derivative, extended_asset underlying, std::ve
              / double(derivative.quantity.amount) / std::pow(10, underlying.quantity.symbol.precision());
    });
 
-   // TODO: check allowance
    // deposit underlying asset to reserve
+   prepaid_index ppd(_self, _self.value);
+   auto pit = ppd.find(basename(derivative.contract).value);
+
+   auto leftover = underlying;
+
+   if (pit != ppd.end()) {
+      if (leftover >= pit->value) {
+         leftover -= pit->value;
+         ppd.erase(pit);
+      } else {
+         ppd.modify(pit, same_payer, [&](auto& p) {
+            p.value -= leftover;
+            leftover.quantity.amount = 0;
+         });
+      }
+   }
+
    token _token;
    _token.authorization = {{_self, "active"_n}};
-   _token.transfer(basename(derivative.contract), _self, underlying, "deposit in reserve");
+
+   if (leftover.quantity.amount > 0) {
+      _token.transfer(basename(derivative.contract), _self, leftover, "deposit in reserve");
+   }
 
    // create derivative token
    _token.authorization.clear();
@@ -72,6 +91,35 @@ void reserve::claim(name owner, extended_asset value) {
       r.derivative -= value;
       r.underlying -= claimed_asset;
    });
+}
+
+void reserve::setminamount(extended_asset value) {
+   require_auth(_self);
+
+   check(value.quantity.amount >= 0, "min amount must not be negative");
+   check(value.quantity.symbol.is_valid(), "invalid symbol");
+   check(value.contract == system::default_account, "prepaid asset should be system token");
+
+   configuration cfg(_self, _self.value);
+   cfg.set({value}, _self);
+}
+
+void reserve::prepay(name creator, name name, extended_asset value) {
+   require_auth(creator);
+
+   configuration cfg(_self, _self.value);
+   check(value >= cfg.get().amount, "not enough to prepay");
+
+   prepaid_index ppd(_self, _self.value);
+   ppd.emplace(_self, [&](auto& p) {
+      p.creator = creator;
+      p.name = name;
+      p.value = value;
+   });
+
+   auto _token = token();
+   _token.authorization = {{_self, "active"_n}};
+   _token.transfer(creator, _self, value, "prepaid for partner account creation");
 }
 
 }

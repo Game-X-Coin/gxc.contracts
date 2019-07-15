@@ -1,5 +1,8 @@
 #include <contracts/system.hpp>
+#include <contracts/reserve.hpp>
 #include <eosio/crypto.hpp>
+
+#include "../common/account.cpp"
 
 namespace gxc {
 
@@ -16,7 +19,11 @@ void system::newaccount(name creator, name name, ignore<authority> owner, ignore
    require_auth(_self);
 
    if (creator != _self) {
-      check(name.length() >= 6, "a name shorter than 6 is reserved");
+      if (name.length() < 6) {
+         reserve(reserve::default_account).require_prepaid(creator, name);
+         account().setpartner(name, true);
+      }
+
       check(!has_dot(name), "user account name cannot contain dot");
 
       user_resources_table userres(_self, name.value);
