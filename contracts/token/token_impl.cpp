@@ -26,6 +26,8 @@ void token_impl::_setopts(token::stat& s, const std::vector<option>& opts, bool 
             s.option(opt::recallable, o.second.as<bool>());
          } else if (o.first == "freezable") {
             s.option(opt::freezable, o.second.as<bool>());
+         } else if (o.first == "floatable") {
+            s.option(opt::floatable, o.second.as<bool>());
          } else if (o.first == "pausable") {
             s.option(opt::pausable, o.second.as<bool>());
          } else if (o.first == "whitelistable") {
