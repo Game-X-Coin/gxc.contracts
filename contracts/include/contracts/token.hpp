@@ -61,6 +61,7 @@ public:
          mintable = 0,
          recallable,
          freezable,
+         floatable,
          pausable,
          paused,
          whitelistable,

@@ -1,4 +1,5 @@
 #include "token.hpp"
+#include <cmath>
 
 namespace gxc {
 
@@ -121,6 +122,9 @@ void account_impl::add_balance(extended_asset value) {
 void account_impl::sub_deposit(extended_asset value) {
    check_account_is_valid();
    check(_this->deposit->amount >= value.quantity.amount, "overdrawn deposit");
+   check(!_st->option(token_impl::opt::floatable) ||
+         value.quantity.amount % static_cast<int64_t>(std::pow(10, value.quantity.symbol.precision())) == 0, "not available float");
+
 
    if (!_this->option(opt::frozen) && (!_this->option(opt::whitelist) || code() == owner()) && !keep_balance &&
        _this->deposit->amount == value.quantity.amount && _this->balance.amount == 0)
@@ -135,6 +139,9 @@ void account_impl::sub_deposit(extended_asset value) {
 
 void account_impl::add_deposit(extended_asset value) {
    if (!exists()) {
+      check(!_st->option(token_impl::opt::floatable) ||
+         value.quantity.amount % static_cast<int64_t>(std::pow(10, value.quantity.symbol.precision())) == 0, "not available float");
+
       bool whitelist = false;
       check(!_st->option(token_impl::opt::whitelist_on) ||
             (whitelist = (code() == owner()) || has_vauth(value.contract)), "required to open deposit manually");
