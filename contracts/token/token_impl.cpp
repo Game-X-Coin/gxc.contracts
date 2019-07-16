@@ -13,31 +13,31 @@ constexpr name active_permission{"active"_n};
 void token_impl::_setopts(token::stat& s, const std::vector<option>& opts, bool init) {
    for (auto o: opts) {
       if (o.first == "paused") {
-         s.option(opt::paused, o.second.as<bool>());
+         s.option(opt::paused, unpack<bool>(o.second));
       } else if (o.first == "whitelist_on") {
-         s.option(opt::whitelist_on, o.second.as<bool>());
+         s.option(opt::whitelist_on, unpack<bool>(o.second));
       } else {
          // Below options can be configured only when creating token.
          check(init, "not allowed to change the option `" + o.first + "`");
 
          if (o.first == "mintable") {
-            s.option(opt::mintable, o.second.as<bool>());
+            s.option(opt::mintable, unpack<bool>(o.second));
          } else if (o.first == "recallable") {
-            s.option(opt::recallable, o.second.as<bool>());
+            s.option(opt::recallable, unpack<bool>(o.second));
          } else if (o.first == "freezable") {
-            s.option(opt::freezable, o.second.as<bool>());
+            s.option(opt::freezable, unpack<bool>(o.second));
          } else if (o.first == "floatable") {
-            s.option(opt::floatable, o.second.as<bool>());
+            s.option(opt::floatable, unpack<bool>(o.second));
          } else if (o.first == "pausable") {
-            s.option(opt::pausable, o.second.as<bool>());
+            s.option(opt::pausable, unpack<bool>(o.second));
          } else if (o.first == "whitelistable") {
-            s.option(opt::whitelistable, o.second.as<bool>());
+            s.option(opt::whitelistable, unpack<bool>(o.second));
          } else if (o.first == "withdraw_min_amount") {
-            auto value = o.second.as<int64_t>();
+            auto value = unpack<int64_t>(o.second);
             check(value >= 0, "withdraw_min_amount should be positive");
             s.amount.emplace(asset(value, s.supply.symbol));
          } else if (o.first == "withdraw_delay_sec") {
-            auto value = o.second.as<uint64_t>();
+            auto value = unpack<uint64_t>(o.second);
             s.duration.emplace(static_cast<uint32_t>(value));
          } else {
             check(false, "unknown option `" + o.first + "`");
