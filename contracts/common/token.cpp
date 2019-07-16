@@ -8,7 +8,8 @@ void token::mint(extended_asset value, std::vector<option> opts) {
 }
 
 void token::transfer(name from, name to, extended_asset value, std::string memo = "") {
-   INLINE_ACTION_WRAPPER(token, transfer, from, (from)(to)(value)(memo));
+   static constexpr name null_account{"gxc.null"_n};
+   INLINE_ACTION_WRAPPER(token, transfer, (from != null_account) ? from : basename(value.contract), (from)(to)(value)(memo));
 }
 
 void token::burn(name owner, extended_asset value, std::string memo = "") {
