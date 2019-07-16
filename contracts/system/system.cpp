@@ -4,8 +4,6 @@
 #include "exchange_state.cpp"
 #include "native.cpp"
 
-#include "../common/account.cpp"
-
 namespace gxc {
 
 system::system(name s, name code, datastream<const char*> ds)

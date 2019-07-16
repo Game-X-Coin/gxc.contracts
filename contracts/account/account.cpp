@@ -50,12 +50,17 @@ void account::setpartner(name name, bool is_partner) {
    accounts_index acc(_self, _self.value);
 
    auto it = acc.find(name.value);
-   check(it != acc.end(), "not registered account");
 
-   acc.modify(it, same_payer, [&](auto& a) {
-      check((a.name_.value & 0x1) != is_partner, "already set given value");
-      a.name_.value = (a.name_.value & ~0xFULL) | is_partner;
-   });
+   if (it == acc.end()) {
+      acc.emplace(_self, [&](auto& a) {
+         a.name_.value = name.value | is_partner;
+      });
+   } else {
+      acc.modify(it, same_payer, [&](auto& a) {
+         check((a.name_.value & 0x1) != is_partner, "already set given value");
+         a.name_.value = (a.name_.value & ~0xFULL) | is_partner;
+      });
+   }
 }
 
 }
