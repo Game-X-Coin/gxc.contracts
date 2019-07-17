@@ -20,10 +20,11 @@ void htlc::newcontract(name owner, string contract_name, std::variant<name, chec
    htlc_index idx(_self, owner.value);
    check(idx.find(std::hash<std::string>()(contract_name)) == idx.end(), "existing contract name");
 
-   config_index cfg(_self, _self.value);
-   auto it = cfg.find(std::hash<esc>()(esc{value.quantity.symbol.code(), value.contract}));
+   config_index cfg(_self, value.contract.value);
+   auto it = cfg.find(value.quantity.symbol.code().raw());
+
    bool constrained = owner != vault_account && it != cfg.end();
-   auto min_amount = (constrained) ? it->min_amount : extended_asset(0, value.get_extended_symbol());
+   auto min_amount = (constrained) ? extended_asset(it->min_amount, value.contract) : extended_asset(0, value.get_extended_symbol());
    auto min_duration = (constrained) ? it->min_duration : 0;
 
    check(value >= min_amount, "specified amount is not enough");
@@ -92,25 +93,29 @@ void htlc::refund(name owner, string contract_name) {
    idx.erase(it);
 }
 
-void htlc::setconfig(extended_asset min_amount, uint32_t min_duration) {
+void htlc::setconfig(extended_asset min_amount, uint32_t min_duration, std::optional<uint16_t> rate, std::optional<asset> fixed) {
    require_auth(min_amount.contract);
 
    check(min_amount.quantity.symbol.is_valid(), "invalid symbol name `" + min_amount.quantity.symbol.code().to_string() + "`");
    check(min_amount.quantity.is_valid(), "invalid quantity");
    check(min_amount.quantity.amount >= 0, "must not be negative quantity");
    
-   config_index idx(_self, _self.value);
-   auto it = idx.find(std::hash<esc>()(esc{min_amount.quantity.symbol.code(), min_amount.contract}));
+   config_index idx(_self, min_amount.contract.value);
+   auto it = idx.find(min_amount.quantity.symbol.code().raw());
 
    if (it != idx.end()) {
       idx.modify(it, same_payer, [&](auto& c) {
-         c.min_amount = min_amount;
+         c.min_amount = min_amount.quantity;
          c.min_duration = min_duration;
+         if (rate) c.rate = *rate;
+         if (fixed) c.fixed = *fixed;
       });
    } else {
       idx.emplace(min_amount.contract, [&](auto& c) {
-         c.min_amount = min_amount;
+         c.min_amount = min_amount.quantity;
          c.min_duration = min_duration;
+         if (rate) c.rate = *rate;
+         if (fixed) c.fixed = *fixed;
       });
    }
 }
