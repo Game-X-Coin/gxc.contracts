@@ -614,7 +614,7 @@ BOOST_FIXTURE_TEST_CASE(repause_unpausable_tests, gxc_token_tester) try {
       ("supply", "0 HOBL")
       ("max_supply", "1000 HOBL")
       ("issuer", "conr2d.com")
-      ("opts", 33) // mintable, paused
+      ("opts", 17) // mintable, paused
    );
    produce_blocks(1);
 
@@ -737,6 +737,116 @@ BOOST_FIXTURE_TEST_CASE(approve_tests, gxc_token_tester) try {
       ("balance", "600 ENC")
       ("issuer_", "conr2d.com")
       ("deposit", "0 ENC")
+   );
+   produce_blocks(1);
+
+} FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(floatable_mint_tests, gxc_token_tester) try {
+   BOOST_REQUIRE_EQUAL(success(),
+      mint(EA("1000 CRD@conr2d.com"), false, {{"floatable", {0}}})
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_stats("CRD@conr2d.com"), mvo()
+      ("supply", "0 CRD")
+      ("max_supply", "1000 CRD")
+      ("issuer", "conr2d.com")
+      ("opts", 7) // mintable, recallable, freezable
+      ("amount", "0 CRD")
+      ("duration", 86400)
+   );
+   produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(success(),
+      mint(EA("1000 ENC@conr2d.com"), false, {{"floatable", {1}}})
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_stats("ENC@conr2d.com"), mvo()
+      ("supply", "0 ENC")
+      ("max_supply", "1000 ENC")
+      ("issuer", "conr2d.com")
+      ("opts", 135) // mintable, recallable, freezable, floatable
+      ("amount", "0 ENC")
+      ("duration", 86400)
+   );
+  produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(success(),
+      mint(EA("1000 GAB@conr2d.com"), true, {{"floatable", {0}}})
+   );
+
+    REQUIRE_MATCHING_OBJECT(get_stats("GAB@conr2d.com"), mvo()
+      ("supply", "0 GAB")
+      ("max_supply", "1000 GAB")
+      ("issuer", "conr2d.com")
+      ("opts", 1)
+   );
+  produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(wasm_assert_msg("not allowed to set floatable"),
+      mint(EA("1000 HOBL@conr2d.com"), true, {{"floatable", {1}}})
+   );
+
+} FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(floatable_deposit_tests, gxc_token_tester) try {
+   mint(EA("1000.00 ENC@conr2d.com"), false, {
+      {"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}, {"floatable", {0}}
+   });
+   produce_blocks(1);
+
+   transfer(null_account_name, N(eun2ce), EA("500.00 ENC@conr2d.com"), "hola");
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
+      ("balance", "0.00 ENC")
+      ("issuer_", "conr2d.com")
+      ("deposit", "500.00 ENC")
+   );
+   produce_blocks(1);
+
+   pushwithdraw(N(eun2ce), EA("300.00 ENC@conr2d.com"));
+   produce_blocks(3);
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
+      ("balance", "300.00 ENC")
+      ("issuer_", "conr2d.com")
+      ("deposit", "200.00 ENC")
+   );
+   produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(wasm_assert_msg("not available float"),
+      pushwithdraw(N(eun2ce), EA("100.01 ENC@conr2d.com"))
+   );
+
+   mint(EA("1000.00 CRD@conr2d.com"), false, {
+      {"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}, {"floatable", {1}}
+   });
+   produce_blocks(1);
+
+   transfer(null_account_name, N(eun2ce), EA("500.00 CRD@conr2d.com"), "hola");
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "CRD@conr2d.com"), mvo()
+      ("balance", "0.00 CRD")
+      ("issuer_", "conr2d.com")
+      ("deposit", "500.00 CRD")
+   );
+   produce_blocks(1);
+
+   pushwithdraw(N(eun2ce), EA("300.00 CRD@conr2d.com"));
+   produce_blocks(3);
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "CRD@conr2d.com"), mvo()
+      ("balance", "300.00 CRD")
+      ("issuer_", "conr2d.com")
+      ("deposit", "200.00 CRD")
+   );
+   produce_blocks(1);
+
+   pushwithdraw(N(eun2ce), EA("100.01 CRD@conr2d.com"));
+   produce_blocks(3);
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "CRD@conr2d.com"), mvo()
+      ("balance", "400.01 CRD")
+      ("issuer_", "conr2d.com")
+      ("deposit", "99.99 CRD")
    );
    produce_blocks(1);
 
