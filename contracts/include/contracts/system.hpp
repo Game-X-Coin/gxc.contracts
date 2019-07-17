@@ -154,10 +154,6 @@ private:
       return itr->quote.balance.symbol;
    }
 
-   static bool is_admin(const name& name) {
-      return (name == default_account) || has_dot(name);
-   }
-
    static gxc_global_state get_default_parameters();
 
    symbol core_symbol()const;
