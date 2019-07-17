@@ -744,47 +744,47 @@ BOOST_FIXTURE_TEST_CASE(approve_tests, gxc_token_tester) try {
 
 BOOST_FIXTURE_TEST_CASE(floatable_mint_tests, gxc_token_tester) try {
    BOOST_REQUIRE_EQUAL(success(),
-      mint(EA("1000 CRD@conr2d.com"), false, {{"floatable", {0}}})
+      mint(EA("1000.00 CRD@conr2d.com"), false, {{"floatable", {0}}})
    );
 
    REQUIRE_MATCHING_OBJECT(get_stats("CRD@conr2d.com"), mvo()
-      ("supply", "0 CRD")
-      ("max_supply", "1000 CRD")
+      ("supply", "0.00 CRD")
+      ("max_supply", "1000.00 CRD")
       ("issuer", "conr2d.com")
       ("opts", 7) // mintable, recallable, freezable
-      ("amount", "0 CRD")
+      ("amount", "0.00 CRD")
       ("duration", 86400)
    );
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(success(),
-      mint(EA("1000 ENC@conr2d.com"), false, {{"floatable", {1}}})
+      mint(EA("1000.00 ENC@conr2d.com"), false, {{"floatable", {1}}})
    );
 
    REQUIRE_MATCHING_OBJECT(get_stats("ENC@conr2d.com"), mvo()
-      ("supply", "0 ENC")
-      ("max_supply", "1000 ENC")
+      ("supply", "0.00 ENC")
+      ("max_supply", "1000.00 ENC")
       ("issuer", "conr2d.com")
       ("opts", 135) // mintable, recallable, freezable, floatable
-      ("amount", "0 ENC")
+      ("amount", "0.00 ENC")
       ("duration", 86400)
    );
   produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(success(),
-      mint(EA("1000 GAB@conr2d.com"), true, {{"floatable", {0}}})
+      mint(EA("1000.00 GAB@conr2d.com"), true, {{"floatable", {0}}})
    );
 
     REQUIRE_MATCHING_OBJECT(get_stats("GAB@conr2d.com"), mvo()
-      ("supply", "0 GAB")
-      ("max_supply", "1000 GAB")
+      ("supply", "0.00 GAB")
+      ("max_supply", "1000.00 GAB")
       ("issuer", "conr2d.com")
       ("opts", 1)
    );
   produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("not allowed to set floatable"),
-      mint(EA("1000 HOBL@conr2d.com"), true, {{"floatable", {1}}})
+      mint(EA("1000.00 HOBL@conr2d.com"), true, {{"floatable", {1}}})
    );
 
 } FC_LOG_AND_RETHROW()
