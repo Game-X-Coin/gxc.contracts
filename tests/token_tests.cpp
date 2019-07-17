@@ -115,7 +115,7 @@ BOOST_FIXTURE_TEST_CASE(issue_simple_tests, gxc_token_tester) try {
    mint(EA("1000.000 HOBL@conr2d"));
    produce_blocks(1);
 
-   transfer(null_account_name, N(conr2d), EA("500.000 HOBL@conr2d"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("500.000 HOBL@conr2d"), "hola");
 
    REQUIRE_MATCHING_OBJECT(get_stats("HOBL@conr2d"), mvo()
       ("supply", "500.000 HOBL")
@@ -130,15 +130,15 @@ BOOST_FIXTURE_TEST_CASE(issue_simple_tests, gxc_token_tester) try {
    );
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("quantity exceeds available supply"),
-      transfer(null_account_name, N(conr2d), EA("501.000 HOBL@conr2d"), "hola")
+      transfer(config::null_account_name, N(conr2d), EA("501.000 HOBL@conr2d"), "hola")
    );
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("must be positive quantity"),
-      transfer(null_account_name, N(conr2d), EA("-1.000 HOBL@conr2d"), "hola")
+      transfer(config::null_account_name, N(conr2d), EA("-1.000 HOBL@conr2d"), "hola")
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(null_account_name, N(conr2d), EA("1.000 HOBL@conr2d"), "hola")
+      transfer(config::null_account_name, N(conr2d), EA("1.000 HOBL@conr2d"), "hola")
    );
 
 } FC_LOG_AND_RETHROW()
@@ -149,7 +149,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(null_account_name, N(conr2d), EA("500.000 HOBL@conr2d"), "hola")
+      transfer(config::null_account_name, N(conr2d), EA("500.000 HOBL@conr2d"), "hola")
    );
 
    REQUIRE_MATCHING_OBJECT(get_stats("HOBL@conr2d"), mvo()
@@ -165,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(N(conr2d), null_account_name, EA("200.000 HOBL@conr2d"), "hola")
+      transfer(N(conr2d), config::null_account_name, EA("200.000 HOBL@conr2d"), "hola")
    );
    REQUIRE_MATCHING_OBJECT(get_stats("HOBL@conr2d"), mvo()
       ("supply", "300.000 HOBL")
@@ -180,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
 
    //should fail to retire more than current supply
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("overdrawn balance"),
-      transfer(N(conr2d), null_account_name, EA("500.000 HOBL@conr2d"), "hola")
+      transfer(N(conr2d), config::null_account_name, EA("500.000 HOBL@conr2d"), "hola")
    );
 
    BOOST_REQUIRE_EQUAL(success(),
@@ -188,7 +188,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
    );
    //should fail to retire since tokens are not on the issuer's balance
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("overdrawn balance"),
-      transfer(N(conr2d), null_account_name, EA("300.000 HOBL@conr2d"), "hola")
+      transfer(N(conr2d), config::null_account_name, EA("300.000 HOBL@conr2d"), "hola")
    );
    //transfer tokens back
    BOOST_REQUIRE_EQUAL(success(),
@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(N(conr2d), null_account_name, EA("300.000 HOBL@conr2d"), "hola")
+      transfer(N(conr2d), config::null_account_name, EA("300.000 HOBL@conr2d"), "hola")
    );
    REQUIRE_MATCHING_OBJECT(get_stats("HOBL@conr2d"), mvo()
       ("supply", "0.000 HOBL")
@@ -208,7 +208,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
 
    //trying to retire tokens with zero supply
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("cannot pass end iterator to modify"),
-      transfer(N(conr2d), null_account_name, EA("1.000 HOBL@conr2d"), "hola")
+      transfer(N(conr2d), config::null_account_name, EA("1.000 HOBL@conr2d"), "hola")
    );
 
 } FC_LOG_AND_RETHROW()
@@ -218,7 +218,7 @@ BOOST_FIXTURE_TEST_CASE(open_tests, gxc_token_tester) try {
    mint(EA("1000 HOBL@conr2d"));
    BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "HOBL@conr2d").is_null());
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "issue")
+      transfer(config::null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "issue")
    );
 
    REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "HOBL@conr2d"), mvo()
@@ -260,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(close_tests, gxc_token_tester) try {
    BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "HOBL@conr2d").is_null());
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "hola")
+      transfer(config::null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "hola")
    );
 
    // non-whitelisted account of zero balance is deleted without explicit close
@@ -288,7 +288,7 @@ BOOST_FIXTURE_TEST_CASE(transfer_simple_tests, gxc_token_tester) try {
    mint(EA("1000 HOBL@conr2d"));
    produce_blocks(1);
 
-   transfer(null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("1000 HOBL@conr2d"), "hola");
 
    transfer(N(conr2d), N(eun2ce), EA("300 HOBL@conr2d"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "HOBL@conr2d"), mvo()
@@ -328,10 +328,10 @@ BOOST_FIXTURE_TEST_CASE(transfer_tests , gxc_token_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL("missing authority of conr2d",
-      transfer(null_account_name, N(eun2ce), EA("1000 ENC@conr2d.com"), "hola", N(eun2ce))
+      transfer(config::null_account_name, N(eun2ce), EA("1000 ENC@conr2d.com"), "hola", N(eun2ce))
    );
 
-   transfer(null_account_name, N(eun2ce), EA("1000 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("1000 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "0 ENC")
       ("issuer_", "conr2d.com")
@@ -386,7 +386,7 @@ BOOST_FIXTURE_TEST_CASE(transfer_tests , gxc_token_tester) try {
 BOOST_FIXTURE_TEST_CASE(burn_tests, gxc_token_tester) try {
 
    mint(EA("1000 ENC@conr2d.com"), false, {{"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}});
-   transfer(null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
 
    REQUIRE_MATCHING_OBJECT(get_stats("ENC@conr2d.com"), mvo()
       ("supply", "200 ENC")
@@ -420,7 +420,7 @@ BOOST_FIXTURE_TEST_CASE(burn_tests, gxc_token_tester) try {
    produce_blocks(1);
 
    // not allow user (not issuer or token contract) to burn token
-   transfer(null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "0 ENC")
       ("issuer_", "conr2d.com")
@@ -468,7 +468,7 @@ BOOST_FIXTURE_TEST_CASE(freezable_token_tests, gxc_token_tester) try {
    mint(EA("1000 ENC@conr2d.com"), false, {{"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}});
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
    pushwithdraw(N(eun2ce), EA("100 ENC@conr2d.com"));
    produce_blocks(3);
 
@@ -488,7 +488,7 @@ BOOST_FIXTURE_TEST_CASE(freezable_token_tests, gxc_token_tester) try {
       transfer(N(eun2ce), N(ian), EA("100 ENC@conr2d.com"), "hola")
    );
 
-   transfer(null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
    transfer(N(conr2d), N(ian), EA("100 ENC@conr2d.com"), "hola");
    produce_blocks(1);
 
@@ -502,14 +502,14 @@ BOOST_FIXTURE_TEST_CASE(freezable_token_tests, gxc_token_tester) try {
 
    // not possible transfer with frozen account deposit
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("account is frozen"),
-      transfer(null_account_name, N(eun2ce), EA("100 ENC@conr2d.com"), "hola")
+      transfer(config::null_account_name, N(eun2ce), EA("100 ENC@conr2d.com"), "hola")
    );
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("account is frozen"),
-      transfer(N(eun2ce), null_account_name, EA("100 ENC@conr2d.com"), "hola", N(conr2d))
+      transfer(N(eun2ce), config::null_account_name, EA("100 ENC@conr2d.com"), "hola", N(conr2d))
    );
 
    setacntsopts({N(eun2ce)}, SC("ENC@conr2d.com"), {{"frozen", {0}}});
-   transfer(null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "100 ENC")
       ("issuer_", "conr2d.com")
@@ -526,7 +526,7 @@ BOOST_FIXTURE_TEST_CASE(whitelistable_token_tests, gxc_token_tester) try {
    });
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("500 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("500 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "0 ENC")
       ("issuer_", "conr2d.com..2")
@@ -576,7 +576,7 @@ BOOST_FIXTURE_TEST_CASE(pausable_token_tests, gxc_token_tester) try {
    });
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("500 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("500 ENC@conr2d.com"), "hola");
    pushwithdraw(N(eun2ce), EA("500 ENC@conr2d.com"));
    produce_blocks(3);
 
@@ -618,7 +618,7 @@ BOOST_FIXTURE_TEST_CASE(repause_unpausable_tests, gxc_token_tester) try {
    );
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("500 HOBL@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("500 HOBL@conr2d.com"), "hola");
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("token is paused"),
       transfer(N(eun2ce), N(ian), EA("100 HOBL@conr2d.com"), "hola")
    );
@@ -643,9 +643,9 @@ BOOST_FIXTURE_TEST_CASE(repause_unpausable_tests, gxc_token_tester) try {
 
 BOOST_FIXTURE_TEST_CASE(deposit_tests, gxc_token_tester) try {
    mint(EA("1000 ENC@conr2d.com"), false, {{"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}});
-   transfer(null_account_name, N(conr2d), EA("300 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("300 ENC@conr2d.com"), "hola");
    transfer(N(conr2d), N(eun2ce), EA("300 ENC@conr2d.com"), "hola");
-   transfer(null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("200 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "300 ENC")
       ("issuer_", "conr2d.com")
@@ -665,9 +665,9 @@ BOOST_FIXTURE_TEST_CASE(deposit_tests, gxc_token_tester) try {
 
 BOOST_FIXTURE_TEST_CASE(withdraw_tests, gxc_token_tester) try {
    mint(EA("1000 ENC@conr2d.com"), false, {{"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}});
-   transfer(null_account_name, N(conr2d), EA("100 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("100 ENC@conr2d.com"), "hola");
    transfer(N(conr2d), N(eun2ce), EA("100 ENC@conr2d.com"), "hola");
-   transfer(null_account_name, N(eun2ce), EA("400 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("400 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "100 ENC")
       ("issuer_", "conr2d.com")
@@ -705,7 +705,7 @@ BOOST_FIXTURE_TEST_CASE(withdraw_tests, gxc_token_tester) try {
 BOOST_FIXTURE_TEST_CASE(approve_tests, gxc_token_tester) try {
 
    mint(EA("1000 ENC@conr2d.com"), false, {{"withdraw_delay_sec", {1, 0, 0, 0, 0, 0, 0, 0}}});
-   transfer(null_account_name, N(conr2d), EA("500 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("500 ENC@conr2d.com"), "hola");
    approve(N(conr2d), N(eun2ce), EA("400 ENC@conr2d.com"));
    transfer(N(conr2d), N(eun2ce), EA("200 ENC@conr2d.com"), "hola", N(eun2ce));
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
@@ -731,7 +731,7 @@ BOOST_FIXTURE_TEST_CASE(approve_tests, gxc_token_tester) try {
       ("deposit", "0 ENC")
    );
 
-   transfer(null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(conr2d), EA("200 ENC@conr2d.com"), "hola");
    transfer(N(conr2d), N(eun2ce), EA("100 ENC@conr2d.com"), "hola", N(eun2ce));
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "600 ENC")
@@ -795,7 +795,7 @@ BOOST_FIXTURE_TEST_CASE(floatable_deposit_tests, gxc_token_tester) try {
    });
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("500.00 ENC@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("500.00 ENC@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "ENC@conr2d.com"), mvo()
       ("balance", "0.00 ENC")
       ("issuer_", "conr2d.com")
@@ -822,7 +822,7 @@ BOOST_FIXTURE_TEST_CASE(floatable_deposit_tests, gxc_token_tester) try {
    });
    produce_blocks(1);
 
-   transfer(null_account_name, N(eun2ce), EA("500.00 CRD@conr2d.com"), "hola");
+   transfer(config::null_account_name, N(eun2ce), EA("500.00 CRD@conr2d.com"), "hola");
    REQUIRE_MATCHING_OBJECT(get_account(N(eun2ce), "CRD@conr2d.com"), mvo()
       ("balance", "0.00 CRD")
       ("issuer_", "conr2d.com")

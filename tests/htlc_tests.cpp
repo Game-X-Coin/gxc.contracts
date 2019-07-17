@@ -1,18 +1,30 @@
 #include "token_tester.hpp"
 
+const static name htlc_account_name = N(gxc.htlc);
+const static name vault_account_name = N(gxc.vault);
+
 class gxc_htlc_tester : public gxc_token_tester {
 public:
-
-   static constexpr uint64_t htlc_account_name = N(gxc.htlc);
-   static constexpr uint64_t vault_account_name = N(gxc.vault);
 
    gxc_htlc_tester() {
       create_accounts({ htlc_account_name, vault_account_name });
       produce_blocks(1);
 
-      set_code(htlc_account_name, contracts::htlc_wasm());
-      set_abi(htlc_account_name, contracts::htlc_abi().data());
+      _set_code(htlc_account_name, contracts::htlc_wasm());
+      _set_abi(htlc_account_name, contracts::htlc_abi().data());
       produce_blocks(1);
+
+      set_authority(config::system_account_name, N(token), authority({htlc_account_name, config::eosio_code_name}), config::owner_name,
+         {{config::system_account_name, config::owner_name}},
+         {get_private_key(config::system_account_name, "active")}
+      );
+
+      base_tester::push_action(config::system_account_name, N(linkauth), config::system_account_name, mvo()
+         ("account", name(config::system_account_name))
+         ("code", token_account_name)
+         ("type", name("transfer"))
+         ("requirement", name("token"))
+      );
 
       auto accnt = control->db().get<account_object,by_name>(htlc_account_name);
       abi_def abi;

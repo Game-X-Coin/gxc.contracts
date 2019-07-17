@@ -41,11 +41,10 @@ inline extended_symbol_code string_to_extended_symbol_code(const string& s) {
 
 FC_REFLECT(eosio::chain::extended_symbol_code, (code)(contract))
 
+const static name token_account_name = N(gxc.token);
+
 class gxc_token_tester: public tester {
 public:
-
-   static constexpr uint64_t token_account_name = N(gxc.token);
-   static constexpr uint64_t null_account_name = N(gxc.null);
 
    vector<transaction_trace_ptr> create_accounts(
       vector<account_name> names,
@@ -96,7 +95,7 @@ public:
       produce_blocks(1);
 
       base_tester::push_action(config::system_account_name, N(setpriv), config::system_account_name, mvo()
-         ("account", name(token_account_name))
+         ("account", token_account_name)
          ("is_priv", true)
       );
       produce_blocks(1);
@@ -130,6 +129,27 @@ public:
       return base_tester::push_action(std::move(act), uint64_t(actor));
    }
 
+   void _set_code(account_name account, const vector<uint8_t> wasm) try {
+      base_tester::push_action(config::system_account_name, N(setcode),
+         vector<permission_level>{{account, config::active_name}, {config::system_account_name, config::active_name}},
+         mvo()
+            ("account", account)
+            ("vmtype", 0)
+            ("vmversion", 0)
+            ("code", bytes(wasm.begin(), wasm.end()))
+      );
+   } FC_CAPTURE_AND_RETHROW((account))
+
+   void _set_abi(account_name account, const char* abi_json) {
+      auto abi = fc::json::from_string(abi_json).template as<abi_def>();
+      base_tester::push_action(config::system_account_name, N(setabi),
+         vector<permission_level>{{account, config::active_name}, {config::system_account_name, config::active_name}},
+         mvo()
+            ("account", account)
+            ("abi", fc::raw::pack(abi))
+      );
+   }
+
 #define PUSH_ACTION_ARGS_ELEM(r, OP, elem) \
    (BOOST_PP_STRINGIZE(elem), elem)
 
@@ -150,7 +170,7 @@ public:
    }
 
    inline action_result transfer(account_name from, account_name to, extended_asset value, string memo) {
-      return transfer(from, to, value, memo, (from != null_account_name) ? from : basename(value.contract));
+      return transfer(from, to, value, memo, (from != config::null_account_name) ? from : basename(value.contract));
    }
 
    action_result transfer(account_name from, account_name to, extended_asset value, string memo, account_name actor) {
