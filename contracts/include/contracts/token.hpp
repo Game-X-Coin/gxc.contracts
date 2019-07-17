@@ -61,11 +61,11 @@ public:
          mintable = 0,
          recallable,
          freezable,
-         floatable,
          pausable,
          paused,
          whitelistable,
-         whitelist_on
+         whitelist_on,
+         floatable
       };
 
       bool option(opt n) const { return (opts >> (0 + n)) & 0x1; }
