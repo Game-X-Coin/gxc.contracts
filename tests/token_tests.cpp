@@ -222,7 +222,7 @@ BOOST_FIXTURE_TEST_CASE(mint_token_tests, gxc_token_tester) try {
       ("supply", "0.000 HOBL")
       ("max_supply", "1000.000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    produce_blocks(1);
 
@@ -243,7 +243,7 @@ BOOST_FIXTURE_TEST_CASE(mint_existing_token, gxc_token_tester) try {
       ("supply", "0 HOBL")
       ("max_supply", "100 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    produce_blocks(1);
 
@@ -252,7 +252,7 @@ BOOST_FIXTURE_TEST_CASE(mint_existing_token, gxc_token_tester) try {
       ("supply", "0 HOBL")
       ("max_supply", "200 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    produce_blocks(1);
 
@@ -282,7 +282,7 @@ BOOST_FIXTURE_TEST_CASE(mint_max_supply, gxc_token_tester) try {
       ("supply", "0 HOBL")
       ("max_supply", "4611686018427387903 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    produce_blocks(1);
 
@@ -305,7 +305,7 @@ BOOST_FIXTURE_TEST_CASE(mint_max_decimals, gxc_token_tester) try {
       ("supply", "0.000000000000000000 HOBL")
       ("max_supply", "1.000000000000000000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    produce_blocks(1);
 
@@ -334,7 +334,7 @@ BOOST_FIXTURE_TEST_CASE(issue_simple_tests, gxc_token_tester) try {
       ("supply", "500.000 HOBL")
       ("max_supply", "1000.000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
 
    REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "HOBL@conr2d"), mvo()
@@ -369,7 +369,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
       ("supply", "500.000 HOBL")
       ("max_supply", "1000.000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
 
    REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "HOBL@conr2d"), mvo()
@@ -384,7 +384,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
       ("supply", "300.000 HOBL")
       ("max_supply", "1000.000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "HOBL@conr2d"), mvo()
       ("balance", "300.000 HOBL")
@@ -415,7 +415,7 @@ BOOST_FIXTURE_TEST_CASE(retire_simple_tests, gxc_token_tester) try {
       ("supply", "0.000 HOBL")
       ("max_supply", "1000.000 HOBL")
       ("issuer", "conr2d")
-      ("opts", 1)
+      ("opts", 1) // mintable
    );
    BOOST_REQUIRE_EQUAL(true, get_account(N(conr2d), "HOBL@conr2d").is_null());
 
@@ -534,7 +534,7 @@ BOOST_FIXTURE_TEST_CASE(transfer_tests , gxc_token_tester) try {
       ("supply", "0 ENC")
       ("max_supply", "1000 ENC")
       ("issuer", "conr2d.com")
-      ("opts", 7)
+      ("opts", 7) // mintable, recallable, freezable
       ("amount", "0 ENC")
       ("duration", 1)
    );
@@ -605,7 +605,7 @@ BOOST_FIXTURE_TEST_CASE(burn_tests, gxc_token_tester) try {
       ("supply", "200 ENC")
       ("max_supply", "1000 ENC")
       ("issuer", "conr2d.com")
-      ("opts", 7)
+      ("opts", 7) //mintable, recallable, freezable
       ("amount", "0 ENC")
       ("duration", 1)
    );
@@ -626,7 +626,7 @@ BOOST_FIXTURE_TEST_CASE(burn_tests, gxc_token_tester) try {
       ("supply", "100 ENC")
       ("max_supply", "900 ENC")
       ("issuer", "conr2d.com")
-      ("opts", 7)
+      ("opts", 7) // mintable, recallable, freezable
       ("amount", "0 ENC")
       ("duration", 1)
    );
@@ -669,7 +669,7 @@ BOOST_FIXTURE_TEST_CASE(burn_tests, gxc_token_tester) try {
       ("supply", "200 ENC")
       ("max_supply", "800 ENC")
       ("issuer", "conr2d.com")
-      ("opts", 7)
+      ("opts", 7) // mintable, recallable, freezable
       ("amount", "0 ENC")
       ("duration", 1)
    );
@@ -827,7 +827,7 @@ BOOST_FIXTURE_TEST_CASE(repause_unpausable_tests, gxc_token_tester) try {
       ("supply", "0 HOBL")
       ("max_supply", "1000 HOBL")
       ("issuer", "conr2d.com")
-      ("opts", 17)
+      ("opts", 33) // mintable, paused
    );
    produce_blocks(1);
 
