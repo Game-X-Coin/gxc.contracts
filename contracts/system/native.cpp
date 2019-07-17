@@ -39,7 +39,7 @@ void system::newaccount(name creator, name name, ignore<authority> owner, ignore
 }
 
 void system::setabi(name account, const std::vector<char>& abi) {
-   check(is_admin(account), "not allowed to normal account");
+   require_auth(_self);
 
    eosio::multi_index<"abihash"_n, abi_hash> table(_self, _self.value);
 
@@ -59,7 +59,7 @@ void system::setabi(name account, const std::vector<char>& abi) {
 }
 
 void system::setcode(name account, uint8_t vmtype, uint8_t vmversion, const std::vector<char>& code) {
-   check(is_admin(account), "not allowed to normal account");
+   require_auth(_self);
 }
 
 }
