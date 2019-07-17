@@ -12,7 +12,7 @@ constexpr name system_account{"gxc"_n};
 constexpr name null_account{"gxc.null"_n};
 constexpr name vault_account{"gxc.vault"_n};
 
-void htlc::newcontract(name owner, string contract_name, std::variant<name,checksum160> recipient, extended_asset value, checksum256 hashlock, time_point_sec timelock) {
+void htlc::newcontract(name owner, string contract_name, std::variant<name, checksum160> recipient, extended_asset value, checksum256 hashlock, time_point_sec timelock) {
    require_auth(owner);
 
    check(std::holds_alternative<checksum160>(recipient) || (owner == vault_account), "invalid recipient");

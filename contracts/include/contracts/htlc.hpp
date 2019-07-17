@@ -16,7 +16,7 @@ public:
 
    struct [[eosio::table("htlc")]] lock_contract {
       string contract_name;
-      std::variant<name,checksum160> recipient;
+      std::variant<name, checksum160> recipient;
       extended_asset value;
       checksum256 hashlock;
       time_point_sec timelock;
