@@ -28,12 +28,14 @@ public:
    typedef multi_index<"htlc"_n, lock_contract> htlc_index;
 
    struct [[eosio::table]] config {
-      extended_asset min_amount;
+      asset min_amount;
       uint32_t min_duration;
+      uint16_t rate;
+      asset fixed;
 
-      uint64_t primary_key() const { return min_amount.quantity.symbol.code().raw(); }
+      uint64_t primary_key() const { return min_amount.symbol.code().raw(); }
 
-      EOSLIB_SERIALIZE(config, (min_amount)(min_duration))
+      EOSLIB_SERIALIZE(config, (min_amount)(min_duration)(rate)(fixed))
    };
    typedef multi_index<"config"_n, config> config_index;
 
@@ -47,7 +49,7 @@ public:
    void refund(name owner, string contract_name);
 
    [[eosio::action]]
-   void setconfig(extended_asset min_amount, uint32_t min_duration);
+   void setconfig(extended_asset min_amount, uint32_t min_duration, std::optional<uint16_t> rate, std::optional<asset> fixed);
 };
 
 }
