@@ -8,6 +8,8 @@ struct contracts {
    static std::vector<char>    token_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/token/token.abi"); }
    static std::vector<uint8_t> system_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/system/system.wasm"); }
    static std::vector<char>    system_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/system/system.abi"); }
+   static std::vector<uint8_t> htlc_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/htlc/htlc.wasm"); }
+   static std::vector<char>    htlc_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/htlc/htlc.abi"); }
 };
 
-}} //ns eosio::testing
+}} /// namespace eosio::testing

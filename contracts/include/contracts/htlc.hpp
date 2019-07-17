@@ -16,7 +16,7 @@ public:
 
    struct [[eosio::table("htlc")]] lock_contract {
       string contract_name;
-      std::variant<name, checksum160> recipient;
+      std::variant<name,checksum160> recipient;
       extended_asset value;
       checksum256 hashlock;
       time_point_sec timelock;
@@ -31,9 +31,7 @@ public:
       extended_asset min_amount;
       uint32_t min_duration;
 
-      uint64_t primary_key() const {
-         return std::hash<sio4::extended_symbol_code>()(sio4::extended_symbol_code{min_amount.quantity.symbol.code(), min_amount.contract});
-      }
+      uint64_t primary_key() const { return min_amount.quantity.symbol.code().raw(); }
 
       EOSLIB_SERIALIZE(config, (min_amount)(min_duration))
    };

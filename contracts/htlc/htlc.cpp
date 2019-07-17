@@ -12,7 +12,7 @@ constexpr name system_account{"gxc"_n};
 constexpr name null_account{"gxc.null"_n};
 constexpr name vault_account{"gxc.vault"_n};
 
-void htlc::newcontract(name owner, string contract_name, std::variant<name, checksum160> recipient, extended_asset value, checksum256 hashlock, time_point_sec timelock) {
+void htlc::newcontract(name owner, string contract_name, std::variant<name,checksum160> recipient, extended_asset value, checksum256 hashlock, time_point_sec timelock) {
    require_auth(owner);
 
    check(std::holds_alternative<checksum160>(recipient) || (owner == vault_account), "invalid recipient");
@@ -20,8 +20,9 @@ void htlc::newcontract(name owner, string contract_name, std::variant<name, chec
    htlc_index idx(_self, owner.value);
    check(idx.find(std::hash<std::string>()(contract_name)) == idx.end(), "existing contract name");
 
-   config_index cfg(_self, _self.value);
-   auto it = cfg.find(std::hash<esc>()(esc{value.quantity.symbol.code(), value.contract}));
+   config_index cfg(_self, value.contract.value);
+   auto it = cfg.find(value.quantity.symbol.code().raw());
+
    bool constrained = owner != vault_account && it != cfg.end();
    auto min_amount = (constrained) ? it->min_amount : extended_asset(0, value.get_extended_symbol());
    auto min_duration = (constrained) ? it->min_duration : 0;
@@ -99,8 +100,8 @@ void htlc::setconfig(extended_asset min_amount, uint32_t min_duration) {
    check(min_amount.quantity.is_valid(), "invalid quantity");
    check(min_amount.quantity.amount >= 0, "must not be negative quantity");
    
-   config_index idx(_self, _self.value);
-   auto it = idx.find(std::hash<esc>()(esc{min_amount.quantity.symbol.code(), min_amount.contract}));
+   config_index idx(_self, min_amount.contract.value);
+   auto it = idx.find(min_amount.quantity.symbol.code().raw());
 
    if (it != idx.end()) {
       idx.modify(it, same_payer, [&](auto& c) {
