@@ -106,16 +106,19 @@ public:
       abi_ser[token_account_name].set_abi(abi, abi_serializer_max_time);
    }
 
+   fc::variant get_table_row(const account_name& code, const account_name& scope, const account_name& table, uint64_t primary_key) {
+      auto data = get_row_by_account(code, scope, table, primary_key);
+      return data.empty() ? fc::variant() : abi_ser[code].binary_to_variant(table.to_string(), data, abi_serializer_max_time);
+   }
+
    fc::variant get_stats(const string& symbol_name) {
       auto symbol_code = SC(symbol_name);
-      vector<char> data = get_row_by_account(token_account_name, symbol_code.contract, N(stat), symbol_code.code);
-      return data.empty() ? fc::variant() : abi_ser[token_account_name].binary_to_variant("stat", data, abi_serializer_max_time);
+      return get_table_row(token_account_name, symbol_code.contract, N(stat), symbol_code.code);
    }
 
    fc::variant get_account(account_name acc, const string& symbol_name) {
       auto symbol_code = SC(symbol_name);
-      vector<char> data = get_row_by_account(token_account_name, acc, N(accounts), XXH64((const void*)&symbol_code, sizeof(extended_symbol_code), 0));
-      return data.empty() ? fc::variant() : abi_ser[token_account_name].binary_to_variant("accounts", data, abi_serializer_max_time);
+      return get_table_row(token_account_name, acc, N(accounts), XXH64((const void*)&symbol_code, sizeof(extended_symbol_code), 0));
    }
 
    action_result push_action(const account_name& code, const account_name& acttype, const account_name& actor, const variant_object& data) {
