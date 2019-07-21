@@ -10,6 +10,9 @@ struct contracts {
    static std::vector<char>    system_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/system/system.abi"); }
    static std::vector<uint8_t> htlc_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/htlc/htlc.wasm"); }
    static std::vector<char>    htlc_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/htlc/htlc.abi"); }
+   static std::vector<uint8_t> account_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/account/account.wasm"); }
+   static std::vector<char>    account_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/account/account.abi"); }
+
 };
 
 }} /// namespace eosio::testing

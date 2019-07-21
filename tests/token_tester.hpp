@@ -106,6 +106,11 @@ public:
       abi_ser[token_account_name].set_abi(abi, abi_serializer_max_time);
    }
 
+   fc::variant get_table(const account_name& code, const account_name& scope, const account_name& table, uint64_t pk) {
+      vector<char>  data = get_row_by_account(code, scope, table, pk);
+      return data.empty() ? fc::variant() : abi_ser[code].binary_to_variant(table.to_string(), data, abi_serializer_max_time);
+   }
+
    fc::variant get_stats(const string& symbol_name) {
       auto symbol_code = SC(symbol_name);
       vector<char> data = get_row_by_account(token_account_name, symbol_code.contract, N(stat), symbol_code.code);
@@ -157,7 +162,7 @@ public:
    BOOST_PP_SEQ_FOR_EACH(PUSH_ACTION_ARGS_ELEM, _, args)
 
 #define PUSH_ACTION(contract, actor, args) \
-   push_action(contract, name(__func__), actor, mvo() \
+   push_action(contract, eosio::chain::name(__func__), actor, mvo() \
       PUSH_ACTION_ARGS(args) \
    )
 
