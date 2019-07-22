@@ -83,4 +83,12 @@ BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
 
 } FC_LOG_AND_RETHROW()
 
+BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
+   BOOST_TEST_MESSAGE("not implemented yet");
+} FC_LOG_AND_RETHROW()
+
+BOOST_FIXTURE_TEST_CASE(reserve_claim_tests, gxc_reserve_tester) try {
+   BOOST_TEST_MESSAGE("not implemented yet");
+} FC_LOG_AND_RETHROW()
+
 BOOST_AUTO_TEST_SUITE_END()
