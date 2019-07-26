@@ -17,7 +17,7 @@ BOOST_FIXTURE_TEST_CASE(setnick_tests, gxc_account_tester) try {
    );
 
    setnick(N(eun2ce), "eun2cenick");
-   REQUIRE_MATCHING_OBJECT(get_table(accounts_name, accounts_name, N(accounts), N(eun2ce)), mvo()
+   REQUIRE_MATCHING_OBJECT(get_table_row(accounts_name, accounts_name, N(accounts), N(eun2ce)), mvo()
       ("name_", "eun2ce")
       ("nickname", "eun2cenick")
    );
@@ -41,7 +41,7 @@ BOOST_FIXTURE_TEST_CASE(setpartner_tests, gxc_account_tester) try {
    setpartner(N(eun2ce));
    produce_blocks(1);
 
-   REQUIRE_MATCHING_OBJECT(get_table(accounts_name, accounts_name, N(accounts), N(eun2ce)), mvo()
+   REQUIRE_MATCHING_OBJECT(get_table_row(accounts_name, accounts_name, N(accounts), N(eun2ce)), mvo()
       ("name_", "eun2ce......1")
       ("nickname", "eun2cepartner")
    );

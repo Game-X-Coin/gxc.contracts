@@ -19,20 +19,20 @@ public:
       abi_ser[accounts_name].set_abi(abi, abi_serializer_max_time);
    }
 
-   action_result setnick(account_name name, string nickname) {
-      return PUSH_ACTION(accounts_name, name, (name)(nickname));
+   action_result setnick(account_name _name, string nickname) {
+      return PUSH_ACTION(accounts_name, _name, (_name)(nickname));
    }
 
-   action_result setpartner(account_name name, bool is_partner = true) {
-      return PUSH_ACTION(accounts_name, accounts_name, (name)(is_partner));
+   action_result setpartner(account_name _name, bool is_partner = true) {
+      return PUSH_ACTION(accounts_name, accounts_name, (_name)(is_partner));
    }
 
-   action_result connect(name name, name service, string auth_token) {
-      return PUSH_ACTION(accounts_name, name, (name)(service)(auth_token));
+   action_result connect(account_name _name, name service, string auth_token) {
+      return PUSH_ACTION(accounts_name, _name, (_name)(service)(auth_token));
    }
 
-   action_result signin(name name, name service, string auth_token) {
-      return PUSH_ACTION(accounts_name, name, (name)(service)(auth_token));
+   action_result signin(account_name _name, name service, string auth_token) {
+      return PUSH_ACTION(accounts_name, _name, (_name)(service)(auth_token));
    }
 
 };
