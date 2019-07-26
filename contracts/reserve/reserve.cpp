@@ -13,7 +13,8 @@ void reserve::mint(extended_asset derivative, extended_asset underlying, std::ve
 
    std::vector<std::string> valid_opts = {
       "withdraw_min_amount",
-      "withdraw_delay_sec"
+      "withdraw_delay_sec",
+      "floatable",
    };
    auto option_is_valid = [&](const std::string& key) -> bool {
       return std::find(valid_opts.begin(), valid_opts.end(), key) != valid_opts.end();
