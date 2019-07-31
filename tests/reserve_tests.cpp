@@ -102,9 +102,10 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-   mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
+         mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
    );
    produce_blocks(1);
+
    REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamex), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
          ("derivative", "10000.00 GXCP@gamex")
          ("underlying", "100000.0000 HOBL")
