@@ -175,7 +175,7 @@ BOOST_FIXTURE_TEST_CASE(reserve_claim_tests, gxc_reserve_tester) try {
    mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"));
    produce_blocks(1);
 
-   transfer(config::null_account_name, N(gamex), EA("1000.00 GXCP@gamex"), "hola", N(gamex))
+   transfer(config::null_account_name, N(gamex), EA("1000.00 GXCP@gamex"), "hola", N(gamex));
    approve(N(gamex), N(gxc.reserve), EA("100.00 GXCP@gamex"));
    produce_blocks(1);
 
