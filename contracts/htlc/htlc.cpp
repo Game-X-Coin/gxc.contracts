@@ -83,7 +83,7 @@ void htlc::refund(name owner, string contract_name) {
 
    token _token;
    if (std::holds_alternative<name>(it.recipient)) {
-      _token.transfer(_self, owner, it.value, "htlc refunded from" + std::get<name>(it.recipient).to_string() + (contract_name.size() ? ": " : "") + contract_name);
+      check(owner == vault_account, "must not happen");
    } else {
       auto bytes = std::get<checksum160>(it.recipient).extract_as_byte_array();
       auto str_recipient = sio4::to_hex(reinterpret_cast<const char*>(bytes.data()), bytes.size());
