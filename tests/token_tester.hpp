@@ -6,6 +6,7 @@
 #include <xxHash/xxhash.h>
 
 #include "contracts.hpp"
+#include "util.hpp"
 
 using namespace eosio;
 using namespace eosio::chain;
@@ -16,30 +17,6 @@ using namespace std;
 using mvo = fc::mutable_variant_object;
 using option = pair<string,bytes>;
 using u128 = eosio::chain::uint128_t;
-
-namespace eosio { namespace chain {
-
-struct extended_symbol_code {
-   symbol_code code;
-   account_name contract;
-};
-
-inline extended_asset string_to_extended_asset(const string& s) {
-   auto at_pos = s.find('@');
-   return extended_asset(asset::from_string(s.substr(0, at_pos)), s.substr(at_pos+1));
-}
-
-inline extended_symbol_code string_to_extended_symbol_code(const string& s) {
-   auto at_pos = s.find('@');
-   return {symbol(0, s.substr(0, at_pos).data()).to_symbol_code(), s.substr(at_pos+1)};
-}
-
-#define EA(s) string_to_extended_asset(s)
-#define SC(s) string_to_extended_symbol_code(s)
-
-} }
-
-FC_REFLECT(eosio::chain::extended_symbol_code, (code)(contract))
 
 const static name token_account_name = N(gxc.token);
 
@@ -106,16 +83,19 @@ public:
       abi_ser[token_account_name].set_abi(abi, abi_serializer_max_time);
    }
 
+   fc::variant get_table_row(const account_name& code, const account_name& scope, const account_name& table, uint64_t primary_key, const string& type = "") {
+      auto data = get_row_by_account(code, scope, table, primary_key);
+      return data.empty() ? fc::variant() : abi_ser[code].binary_to_variant(type.empty() ? table.to_string() : type, data, abi_serializer_max_time);
+   }
+
    fc::variant get_stats(const string& symbol_name) {
       auto symbol_code = SC(symbol_name);
-      vector<char> data = get_row_by_account(token_account_name, symbol_code.contract, N(stat), symbol_code.code);
-      return data.empty() ? fc::variant() : abi_ser[token_account_name].binary_to_variant("stat", data, abi_serializer_max_time);
+      return get_table_row(token_account_name, symbol_code.contract, N(stat), symbol_code.code);
    }
 
    fc::variant get_account(account_name acc, const string& symbol_name) {
       auto symbol_code = SC(symbol_name);
-      vector<char> data = get_row_by_account(token_account_name, acc, N(accounts), XXH64((const void*)&symbol_code, sizeof(extended_symbol_code), 0));
-      return data.empty() ? fc::variant() : abi_ser[token_account_name].binary_to_variant("accounts", data, abi_serializer_max_time);
+      return get_table_row(token_account_name, acc, N(accounts), XXH64((const void*)&symbol_code, sizeof(extended_symbol_code), 0));
    }
 
    action_result push_action(const account_name& code, const account_name& acttype, const account_name& actor, const variant_object& data) {
@@ -157,7 +137,7 @@ public:
    BOOST_PP_SEQ_FOR_EACH(PUSH_ACTION_ARGS_ELEM, _, args)
 
 #define PUSH_ACTION(contract, actor, args) \
-   push_action(contract, name(__func__), actor, mvo() \
+   push_action(contract, eosio::chain::name(__func__), actor, mvo() \
       PUSH_ACTION_ARGS(args) \
    )
 
