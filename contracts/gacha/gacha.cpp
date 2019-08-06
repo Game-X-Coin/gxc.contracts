@@ -154,8 +154,6 @@ void gacha::resolve() {
       if (git.deadline > current_time_point()) break;
 
       resolve_one(git.id);
-
-      deadline.erase(it);
    }
 
    refresh_schedule();
