@@ -14,6 +14,8 @@ struct contracts {
    static std::vector<char>    account_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/account/account.abi"); }
    static std::vector<uint8_t> reserve_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/reserve/reserve.wasm"); }
    static std::vector<char>    reserve_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/reserve/reserve.abi"); }
+   static std::vector<uint8_t> gacha_wasm() { return read_wasm("${CMAKE_BINARY_DIR}/../contracts/gacha/gacha.wasm"); }
+   static std::vector<char>    gacha_abi() { return read_abi("${CMAKE_BINARY_DIR}/../contracts/gacha/gacha.abi"); }
 
 };
 

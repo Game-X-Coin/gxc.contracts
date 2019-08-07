@@ -43,8 +43,8 @@ public:
       return PUSH_ACTION(gacha_account_name, scheme.at(1), (to)(scheme)(dseedhash)(id));
    }
 
-   action_result setoseed(uint64_t id, const string& oseed) {
-      return PUSH_ACTION(gacha_account_name, N(conr2d), (id)(oseed));
+   action_result setoseed(uint64_t id, const string& oseed, account_name owner) {
+      return PUSH_ACTION(gacha_account_name, owner, (id)(oseed));
    }
 
 };
@@ -105,9 +105,33 @@ BOOST_FIXTURE_TEST_CASE(setoseed_tests, gxc_gacha_tester) try {
    produce_blocks(1);
 
    string oseed = "4c519413ac98e5ead1c3b412e5d053ba0d57245e7689e6fcbe6dd9b81aa88dd7";
-	BOOST_REQUIRE_EQUAL(success(),
-         setoseed(1, oseed)
+   setoseed(1, oseed, N(conr2d));
+   produce_blocks(1);
+
+/*
+   REQUIRE_MATCHING_OBJECT(get_table_row(gacha_account_name, N(eun2ce), N(scheme), N(gacha2)),mvo()
+         ("scheme_name", "gacha2")
+         ("grades", [EA("500.00 ENC"), (uint64_t)1, NULL])
+         ("budget", "500.00 ENC@eun2ce")
+         ("expiration", "2022-01-01T00:00:10")
+         ("precision", 1)
+         ("deadline_sec", 604800)
+         ("out", "0.00 ENC")
+         ("out_count", {0})
+         ("issued", 1)
+         ("unresolved", 1)
    );
 
+   REQUIRE_MATCHING_OBJECT(get_table_row(gacha_account_name, gacha_account_name, N(gacha), 1), mvo()
+         ("id", 1)
+         ("owner", "conr2d")
+         ("scheme", "{'name': 'gacha2', 'contract': 'eun2ce'}")
+         ("dseedhash", dseedhash)
+         ("oseed", oseed)
+         ("deadline", abi_serializer_max_time)
+   );
+
+*/
 } FC_LOG_AND_RETHROW()
+
 BOOST_AUTO_TEST_SUITE_END()
