@@ -1,4 +1,5 @@
 #include "account_tester.hpp"
+#include "util.hpp"
 
 struct grade {
    asset                    reward;
