@@ -52,7 +52,7 @@ public:
       extended_name   scheme;
       checksum256     dseedhash;
       checksum256     oseed = {};
-      time_point_sec  deadline = time_point_sec(std::numeric_limits<uint32_t>::max());
+      time_point_sec  deadline = time_point_sec::maximum();
 
       static uint64_t hash(extended_name scheme, const checksum256& dseedhash) {
          std::array<char,2*8+32> data;
