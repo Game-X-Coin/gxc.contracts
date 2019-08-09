@@ -97,6 +97,7 @@ public:
       auto symbol_code = SC(symbol_name);
       return get_table_row(token_account_name, acc, N(accounts), XXH64((const void*)&symbol_code, sizeof(extended_symbol_code), 0));
    }
+
    action_result push_action(const account_name& code, const account_name& acttype, const account_name& actor, const variant_object& data) {
       string action_type_name = abi_ser[code].get_action_type(acttype);
 

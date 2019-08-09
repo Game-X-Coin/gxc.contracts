@@ -116,26 +116,26 @@ BOOST_FIXTURE_TEST_CASE(open_tests, gxc_gacha_tester) try {
 
    subopen(schm, EA("5000.00 ENC@eun2ce"));
    BOOST_REQUIRE_EQUAL(success(),
-         open(schm, gd, EA("5000.00 ENC@eun2ce"), expiration, 1)
+      open(schm, gd, EA("5000.00 ENC@eun2ce"), expiration, 1)
    );
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, N(eun2ce), N(scheme), N(gacha1)).get_object() == variant_object(mvo()
-         ("scheme_name", "gacha1")
-         ("grades", gd)
-         ("budget", "5000.00 ENC@eun2ce")
-         ("expiration", "2020-07-28T12:43:00")
-         ("precision", 1)
-         ("deadline_sec", 604800)
-         ("out", "0.00 ENC")
-         ("out_count", vector<uint32_t>{0})
-         ("issued", 0)
-         ("unresolved", 0))
+      ("scheme_name", "gacha1")
+      ("grades", gd)
+      ("budget", "5000.00 ENC@eun2ce")
+      ("expiration", "2020-07-28T12:43:00")
+      ("precision", 1)
+      ("deadline_sec", 604800)
+      ("out", "0.00 ENC")
+      ("out_count", vector<uint32_t>{0})
+      ("issued", 0)
+      ("unresolved", 0))
    );
 
    REQUIRE_MATCHING_OBJECT(get_account(gacha_account_name, "ENC@eun2ce"), mvo()
-         ("balance", "5000.00 ENC")
-         ("issuer_", "eun2ce")
+      ("balance", "5000.00 ENC")
+      ("issuer_", "eun2ce")
    );
 
 } FC_LOG_AND_RETHROW()
@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE(issue_tests, gxc_gacha_tester) try {
    string dseedhash = "4855c552bbdd69cef5faee9bcc16a2f6a6b9d5f04560fa6a4045a5195c1f4f75";
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("scheme not found"),
-         issue(N(conr2d), {.name = N(gacha123), .contract = N(eun2ce)}, dseedhash)
+      issue(N(conr2d), {.name = N(gacha123), .contract = N(eun2ce)}, dseedhash)
    );
 
    subopen(schm, EA("5000.00 ENC@eun2ce"));
@@ -156,7 +156,7 @@ BOOST_FIXTURE_TEST_CASE(issue_tests, gxc_gacha_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("scheme expired"),
-         issue(N(conr2d), schm, dseedhash)
+      issue(N(conr2d), schm, dseedhash)
    );
 
    extended_name schm2 = {.name = N(gacha3), .contract = N(conr2d)};
@@ -167,21 +167,21 @@ BOOST_FIXTURE_TEST_CASE(issue_tests, gxc_gacha_tester) try {
 
 
    BOOST_REQUIRE_EQUAL(success(),
-         issue(N(eun2ce), schm2, dseedhash)
+      issue(N(eun2ce), schm2, dseedhash)
    );
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, N(conr2d), N(scheme), N(gacha3)).get_object() == variant_object(mvo()
-         ("scheme_name", "gacha3")
-         ("grades", gd)
-         ("budget", "5000.00 CRD@conr2d")
-         ("expiration", "2022-01-01T00:00:10")
-         ("precision", 1)
-         ("deadline_sec", 604800)
-         ("out", "0.00 CRD")
-         ("out_count", vector<uint32_t>{0})
-         ("issued", 1)
-         ("unresolved", 0))
+      ("scheme_name", "gacha3")
+      ("grades", gd)
+      ("budget", "5000.00 CRD@conr2d")
+      ("expiration", "2022-01-01T00:00:10")
+      ("precision", 1)
+      ("deadline_sec", 604800)
+      ("out", "0.00 CRD")
+      ("out_count", vector<uint32_t>{0})
+      ("issued", 1)
+      ("unresolved", 0))
    );
 
 } FC_LOG_AND_RETHROW()
@@ -200,35 +200,35 @@ BOOST_FIXTURE_TEST_CASE(setoseed_tests, gxc_gacha_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(success(),
-         setoseed(1, oseed, N(conr2d))
+      setoseed(1, oseed, N(conr2d))
    );
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, N(eun2ce), N(scheme), N(gachatest)).get_object() == variant_object(mvo()
-         ("scheme_name", "gachatest")
-         ("grades", gd)
-         ("budget", "5000.00 ENC@eun2ce")
-         ("expiration", "2022-01-01T00:00:10")
-         ("precision", 1)
-         ("deadline_sec", 604800)
-         ("out", "0.00 ENC")
-         ("out_count", vector<uint32_t>{0})
-         ("issued", 1)
-         ("unresolved", 1))
+      ("scheme_name", "gachatest")
+      ("grades", gd)
+      ("budget", "5000.00 ENC@eun2ce")
+      ("expiration", "2022-01-01T00:00:10")
+      ("precision", 1)
+      ("deadline_sec", 604800)
+      ("out", "0.00 ENC")
+      ("out_count", vector<uint32_t>{0})
+      ("issued", 1)
+      ("unresolved", 1))
    );
 
    BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, gacha_account_name, N(gacha), 1, "_gacha").get_object() == variant_object(mvo()
-            ("id", 1)
-            ("owner", "conr2d")
-            ("scheme", schm)
-            ("dseedhash", dseedhash)
-            ("oseed", oseed)
-            ("deadline", "2020-01-08T00:00:11"))
+      ("id", 1)
+      ("owner", "conr2d")
+      ("scheme", schm)
+      ("dseedhash", dseedhash)
+      ("oseed", oseed)
+      ("deadline", "2020-01-08T00:00:11"))
    );
 
    oseed = "4c519413ac98e5ead1c3b412e5d053ba0d57245e7689e6fcbe6dd9b81aa88dd6";
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("oseed is already set"),
-         setoseed(1, oseed, N(conr2d))
+      setoseed(1, oseed, N(conr2d))
    );
 
 } FC_LOG_AND_RETHROW()
@@ -253,16 +253,16 @@ BOOST_FIXTURE_TEST_CASE(setdseed_tests, gxc_gacha_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, N(eun2ce), N(scheme), N(gachatest)).get_object() == variant_object(mvo()
-         ("scheme_name", "gachatest")
-         ("grades", gd)
-         ("budget", "5000.00 ENC@eun2ce")
-         ("expiration", "2022-01-01T00:00:10")
-         ("precision", 1)
-         ("deadline_sec", 604800)
-         ("out", "1000.00 ENC")
-         ("out_count", vector<uint32_t>{1, 0})
-         ("issued", 1)
-         ("unresolved", 0))
+      ("scheme_name", "gachatest")
+      ("grades", gd)
+      ("budget", "5000.00 ENC@eun2ce")
+      ("expiration", "2022-01-01T00:00:10")
+      ("precision", 1)
+      ("deadline_sec", 604800)
+      ("out", "1000.00 ENC")
+      ("out_count", vector<uint32_t>{1, 0})
+      ("issued", 1)
+      ("unresolved", 0))
    );
 
 } FC_LOG_AND_RETHROW()

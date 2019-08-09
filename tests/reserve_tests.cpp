@@ -68,19 +68,17 @@ BOOST_FIXTURE_TEST_CASE(setminamount_tests, gxc_reserve_tester) try {
 BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
 
    set_authority(token_account_name, "active",
-         authority(1,
-            vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}},
-            vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{token_account_name, config::active_name}},
-         {get_private_key(token_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{token_account_name, config::active_name}},
+      {get_private_key(token_account_name, "active")}
    );
 
    set_authority(reserve_account_name, "active",
-         authority(1, vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{reserve_account_name, config::active_name}},
-         {get_private_key(reserve_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{reserve_account_name, config::active_name}},
+      {get_private_key(reserve_account_name, "active")}
    );
    produce_blocks(1);
 
@@ -89,7 +87,7 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("only partner account can use reserve"),
-         mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
+      mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
    );
 
    setpartner(N(gamex));
@@ -98,35 +96,35 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("not allowed to set option `mintable`"),
-         mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"), {{"mintable", {false}}})
+      mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"), {{"mintable", {false}}})
    );
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("underlying asset should be system token"),
-         mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@conr2d"))
+      mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@conr2d"))
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-         mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
+      mint(EA("10000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
    );
    produce_blocks(1);
 
    REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamex), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
-         ("derivative", "10000.00 GXCP@gamex")
-         ("underlying", "100000.0000 HOBL")
-         ("rate", "10.00000000000000000")
+      ("derivative", "10000.00 GXCP@gamex")
+      ("underlying", "100000.0000 HOBL")
+      ("rate", "10.00000000000000000")
    );
 
 	REQUIRE_MATCHING_OBJECT(get_stats("GXCP@gamex"), mvo()
-         ("supply", "0.00 GXCP")
-         ("max_supply", "10000.00 GXCP")
-         ("issuer", "gamex")
-         ("opts", 7)
-         ("amount", "0.00 GXCP")
-         ("duration", 86400)
+      ("supply", "0.00 GXCP")
+      ("max_supply", "10000.00 GXCP")
+      ("issuer", "gamex")
+      ("opts", 7)
+      ("amount", "0.00 GXCP")
+      ("duration", 86400)
    );
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("additional issuance not supported yet"),
-         mint(EA("1000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
+      mint(EA("1000.00 GXCP@gamex"), EA("100000.0000 HOBL@gxc"))
    );
 
 } FC_LOG_AND_RETHROW()
@@ -134,21 +132,17 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
 BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
 
    set_authority(token_account_name, "active",
-         authority(1,
-            vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}},
-            vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{token_account_name, config::active_name}},
-         {get_private_key(token_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{token_account_name, config::active_name}},
+      {get_private_key(token_account_name, "active")}
    );
 
    set_authority(reserve_account_name, "active",
-         authority(1,
-            vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}},
-            vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{reserve_account_name, config::active_name}},
-         {get_private_key(reserve_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{reserve_account_name, config::active_name}},
+      {get_private_key(reserve_account_name, "active")}
    );
    produce_blocks(1);
 
@@ -160,33 +154,33 @@ BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("not enough to prepay"),
-         prepay(N(gxc), N(gamex), EA("1.0000 GXC@gxc"))
+      prepay(N(gxc), N(gamex), EA("1.0000 GXC@gxc"))
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-         prepay(N(gxc), N(gamex), EA("100.0000 GXC@gxc"))
+      prepay(N(gxc), N(gamex), EA("100.0000 GXC@gxc"))
    );
    produce_blocks(1);
 
    REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, reserve_account_name, N(prepaid), N(gamex)), mvo()
-         ("creator", "gxc")
-         ("name", "gamex")
-         ("value", "100.0000 GXC@gxc")
+      ("creator", "gxc")
+      ("name", "gamex")
+      ("value", "100.0000 GXC@gxc")
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-         mint(EA("10.00 GXCP@gamex"), EA("100.0000 GXC@gxc"))
+      mint(EA("10.00 GXCP@gamex"), EA("100.0000 GXC@gxc"))
    );
    produce_blocks(1);
 
    REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamex), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
-         ("derivative", "10.00 GXCP@gamex")
-         ("underlying", "100.0000 GXC")
-         ("rate", "10.00000000000000000")
+      ("derivative", "10.00 GXCP@gamex")
+      ("underlying", "100.0000 GXC")
+      ("rate", "10.00000000000000000")
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-         transfer(config::null_account_name, N(gamex), EA("10.00 GXCP@gamex"), "hola", N(gamex))
+      transfer(config::null_account_name, N(gamex), EA("10.00 GXCP@gamex"), "hola", N(gamex))
    );
 
 } FC_LOG_AND_RETHROW()
@@ -194,21 +188,17 @@ BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
 BOOST_FIXTURE_TEST_CASE(reserve_claim_tests, gxc_reserve_tester) try {
 
    set_authority(token_account_name, "active",
-         authority(1,
-            vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}},
-            vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{token_account_name, config::active_name}},
-         {get_private_key(token_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{token_account_name, config::active_name}},
+      {get_private_key(token_account_name, "active")}
    );
 
    set_authority(reserve_account_name, "active",
-         authority(1,
-            vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}},
-            vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
-         config::owner_name,
-         {{reserve_account_name, config::active_name}},
-         {get_private_key(reserve_account_name, "active")}
+      authority(1, vector<key_weight>{{get_private_key("gxc.reserve", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}}, {}),
+      config::owner_name,
+      {{reserve_account_name, config::active_name}},
+      {get_private_key(reserve_account_name, "active")}
    );
    produce_blocks(1);
 
@@ -227,29 +217,29 @@ BOOST_FIXTURE_TEST_CASE(reserve_claim_tests, gxc_reserve_tester) try {
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(success(),
-         claim(N(gamex), EA("100.00 GXCP@gamex"))
+      claim(N(gamex), EA("100.00 GXCP@gamex"))
    );
    produce_blocks(1);
 
    REQUIRE_MATCHING_OBJECT(get_account(N(gamex), "GXCP@gamex"), mvo()
-         ("balance", "900.00 GXCP")
-         ("issuer_", "gamex")
-         ("deposit", "0.00 GXCP")
+      ("balance", "900.00 GXCP")
+      ("issuer_", "gamex")
+      ("deposit", "0.00 GXCP")
    );
 
    REQUIRE_MATCHING_OBJECT(get_stats("GXCP@gamex"), mvo()
-         ("supply", "900.00 GXCP")
-         ("max_supply", "9900.00 GXCP")
-         ("issuer", "gamex")
-         ("opts", 7)
-         ("amount", "0.00 GXCP")
-         ("duration", 86400)
+      ("supply", "900.00 GXCP")
+      ("max_supply", "9900.00 GXCP")
+      ("issuer", "gamex")
+      ("opts", 7)
+      ("amount", "0.00 GXCP")
+      ("duration", 86400)
    );
 
    REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamex), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
-         ("derivative", "9900.00 GXCP@gamex")
-         ("underlying", "99000.0000 HOBL")
-         ("rate", "10.00000000000000000")
+      ("derivative", "9900.00 GXCP@gamex")
+      ("underlying", "99000.0000 HOBL")
+      ("rate", "10.00000000000000000")
    );
 
 } FC_LOG_AND_RETHROW()
