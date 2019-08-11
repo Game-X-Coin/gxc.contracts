@@ -183,11 +183,12 @@ void gacha::draw(uint64_t id, optional<checksum256> dseed) {
       auto hash = eosio::sha256(reinterpret_cast<const char*>(data.data()), data.size());
       check(memcmp((const void*)git.dseedhash.data(), (const void*)hash.data(), 32) == 0, "hash mismatch");
 
-      bytes result(4);
-      sio4::hash_drbg drbg(mixseed(*dseed, git.oseed));
-      drbg.generate_block(result, result.size());
+      sio4::byte result[4];
+      auto seed = mixseed(*dseed, git.oseed);
+      sio4::hash_drbg drbg(seed.data(), seed.size());
+      drbg.generate_block(&result[0], sizeof(result));
 
-      memcpy((void*)&score, (const void*)result.data(), sit.precision);
+      memcpy((void*)&score, (const void*)result, sit.precision);
 
       for (auto it: sit.grades) {
          if (score >= it.score && (!it.limit || sit.out_count[grade] < *(it.limit)))
