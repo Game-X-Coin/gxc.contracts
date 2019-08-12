@@ -18,6 +18,25 @@ public:
       abi_ser[reserve_account_name].set_abi(abi, abi_serializer_max_time);
    }
 
+   transaction_trace_ptr create_account_with_mulsign(account_name a, account_name creator, const vector<permission_level>& auths) {
+      signed_transaction trx;
+      set_transaction_headers(trx);
+
+      trx.actions.emplace_back(auths,
+                               newaccount{
+                                 .creator = creator,
+                                 .name = a,
+                                 .owner = authority(get_public_key(a, "owner")),
+                                 .active = authority(get_public_key(a, "active"))
+                               });
+
+      set_transaction_headers(trx);
+      for(const auto& auth : auths) {
+      trx.sign(get_private_key( auth.actor, auth.permission.to_string()), control->get_chain_id() );
+      }
+      return push_transaction( trx );
+   }
+
    action_result setminamount(extended_asset value) {
       return PUSH_ACTION(reserve_account_name, reserve_account_name, (value));
    }
@@ -114,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
       ("rate", "10.00000000000000000")
    );
 
-	REQUIRE_MATCHING_OBJECT(get_stats("GXCP@gamex"), mvo()
+   REQUIRE_MATCHING_OBJECT(get_stats("GXCP@gamex"), mvo()
       ("supply", "0.00 GXCP")
       ("max_supply", "10000.00 GXCP")
       ("issuer", "gamex")
@@ -131,6 +150,8 @@ BOOST_FIXTURE_TEST_CASE(reserve_mint_tests, gxc_reserve_tester) try {
 
 BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
 
+   create_accounts({ N(gamexcoin) });
+
    set_authority(token_account_name, "active",
       authority(1, vector<key_weight>{{get_private_key("gxc.token", "active").get_public_key(), 1}}, vector<permission_level_weight>{{{N(gxc.reserve), config::eosio_code_name}, 1}, {{N(gxc.token), config::eosio_code_name}, 1}}, {}),
       config::owner_name,
@@ -146,42 +167,52 @@ BOOST_FIXTURE_TEST_CASE(prepay_tests, gxc_reserve_tester) try {
    );
    produce_blocks(1);
 
-   setpartner(N(gamex));
-   gxc_token_tester::mint(EA("10000.0000 GXC@gxc"), false);
+   gxc_token_tester::mint(EA("1000.0000 GXC@gxc"), false);
+   init(0, symbol(4,"GXC"));
    setminamount(EA("10.0000 GXC@gxc"));
-   transfer(config::null_account_name, N(gxc), EA("100.0000 GXC@gxc"), "hola");
-   approve(N(gxc), reserve_account_name, EA("100.0000 GXC@gxc"));
+   produce_blocks(1);
+
+   transfer(config::null_account_name, N(gxc), EA("500.0000 GXC@gxc"), "hola");
+   transfer(N(gxc), N(gamexcoin), EA("300.0000 GXC@gxc"), "hola");
+
+   BOOST_REQUIRE_EQUAL(success(),
+         approve(N(gamexcoin), reserve_account_name, EA("100.0000 GXC@gxc"))
+   );
    produce_blocks(1);
 
    BOOST_REQUIRE_EQUAL(wasm_assert_msg("not enough to prepay"),
-      prepay(N(gxc), N(gamex), EA("1.0000 GXC@gxc"))
+      prepay(N(gamexcoin), N(gamco), EA("1.0000 GXC@gxc"))
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-      prepay(N(gxc), N(gamex), EA("100.0000 GXC@gxc"))
+      prepay(N(gamexcoin), N(gamco), EA("100.0000 GXC@gxc"))
    );
    produce_blocks(1);
 
-   REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, reserve_account_name, N(prepaid), N(gamex)), mvo()
-      ("creator", "gxc")
-      ("name", "gamex")
+   REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, reserve_account_name, N(prepaid), N(gamco)), mvo()
+      ("creator", "gamexcoin")
+      ("name", "gamco")
       ("value", "100.0000 GXC@gxc")
    );
 
+   create_account_with_mulsign(N(gamco), N(gamexcoin), vector<permission_level>{{N(gamexcoin), config::active_name}, {config::system_account_name, config::active_name}});
+   produce_blocks(1);
+
    BOOST_REQUIRE_EQUAL(success(),
-      mint(EA("10.00 GXCP@gamex"), EA("100.0000 GXC@gxc"))
+      mint(EA("10.00 GXCP@gamco"), EA("100.0000 GXC@gxc"))
    );
    produce_blocks(1);
 
-   REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamex), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
-      ("derivative", "10.00 GXCP@gamex")
+   REQUIRE_MATCHING_OBJECT(get_table_row(reserve_account_name, N(gamco), N(reserves), symbol(0, "GXCP").to_symbol_code().value), mvo()
+      ("derivative", "10.00 GXCP@gamco")
       ("underlying", "100.0000 GXC")
       ("rate", "10.00000000000000000")
    );
 
    BOOST_REQUIRE_EQUAL(success(),
-      transfer(config::null_account_name, N(gamex), EA("10.00 GXCP@gamex"), "hola", N(gamex))
+      transfer(config::null_account_name, N(gamco), EA("10.00 GXCP@gamco"), "hola", N(gamco))
    );
+   produce_blocks(1);
 
 } FC_LOG_AND_RETHROW()
 
