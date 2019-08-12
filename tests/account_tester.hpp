@@ -1,8 +1,8 @@
-#include "token_tester.hpp"
+#include "system_tester.hpp"
 
 const static name accounts_name = N(gxc.account);
 
-class gxc_account_tester : public gxc_token_tester {
+class gxc_account_tester : public gxc_system_tester {
 public:
 
    gxc_account_tester() {
