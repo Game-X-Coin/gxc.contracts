@@ -21,15 +21,22 @@ struct [[eosio::table("global"), eosio::contract("system")]] gxc_global_state : 
    int64_t  total_ram_stake = 0;
    uint16_t new_ram_per_block = 0;
    block_timestamp last_ram_increase;
-   block_timestamp last_block_num;
+   block_timestamp prev_block_timestamp;
    uint8_t  revision = 0;
    uint8_t  ram_gift_kbytes = 8;
 
    EOSLIB_SERIALIZE_DERIVED(gxc_global_state, gxc::blockchain_parameters,
                             (max_ram_size)(total_ram_bytes_reserved)(total_ram_stake)
-                            (new_ram_per_block)(last_ram_increase)(last_block_num)(revision)
+                            (new_ram_per_block)(last_ram_increase)(prev_block_timestamp)(revision)
                             (ram_gift_kbytes)
    )
+};
+
+struct [[eosio::table("block"), eosio::contract("system")]] block_context {
+   checksum256 id;
+   block_header header;
+
+   EOSLIB_SERIALIZE(block_context, (id)(header))
 };
 
 class [[eosio::contract]] system : public contract {
@@ -68,7 +75,7 @@ public:
    void init(unsigned_int version, symbol core);
 
    [[eosio::action]]
-   void onblock(ignore<block_header> header);
+   void onblock(block_header header);
 
    [[eosio::action]]
    void setprods(std::vector<eosio::producer_key> schedule);
@@ -144,6 +151,7 @@ public:
 
 private:
    using global_state_singleton = eosio::singleton<"global"_n, gxc_global_state>;
+   using block_index = eosio::singleton<"block"_n, block_context>;
    rammarket               _rammarket;
    global_state_singleton  _global;
    gxc_global_state        _gstate;
