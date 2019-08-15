@@ -98,7 +98,6 @@ public:
    [[eosio::action]]
    void resolve();
 
-   bytes mixseed(const checksum256& dseed, const checksum256& oseed) const;
    void refresh_schedule();
    void resolve_one(uint64_t id);
    void draw(uint64_t id, optional<checksum256> dseed = nullopt);

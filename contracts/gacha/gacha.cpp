@@ -8,17 +8,6 @@
 
 namespace gxc {
 
-bytes gacha::mixseed(const checksum256& dseed, const checksum256& oseed) const {
-   bytes raw;
-   raw.resize(64);
-
-   datastream<char*> ds(reinterpret_cast<char*>(raw.data()), raw.size());
-   ds << dseed.extract_as_byte_array();
-   ds << oseed.extract_as_byte_array();
-
-   return raw;
-}
-
 void gacha::close(extended_name scheme) {
    require_vauth(scheme.contract);
 
@@ -183,11 +172,16 @@ void gacha::draw(uint64_t id, optional<checksum256> dseed) {
       auto hash = eosio::sha256(reinterpret_cast<const char*>(data.data()), data.size());
       check(memcmp((const void*)git.dseedhash.data(), (const void*)hash.data(), 32) == 0, "hash mismatch");
 
-      bytes result(4);
-      sio4::hash_drbg drbg(mixseed(*dseed, git.oseed));
-      drbg.generate_block(result, result.size());
+      sio4::byte seed[64];
+      datastream<uint8_t*> ds(seed, sizeof(seed));
+      ds << data;
+      ds << git.oseed.extract_as_byte_array();
 
-      memcpy((void*)&score, (const void*)result.data(), sit.precision);
+      sio4::byte result[4];
+      sio4::hash_drbg drbg(seed, sizeof(seed));
+      drbg.generate_block(&result[0], sizeof(result));
+
+      memcpy((void*)&score, (const void*)result, sit.precision);
 
       for (auto it: sit.grades) {
          if (score >= it.score && (!it.limit || sit.out_count[grade] < *(it.limit)))
