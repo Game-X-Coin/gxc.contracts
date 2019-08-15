@@ -6,6 +6,8 @@
 
 namespace gxc {
 
+typedef multi_index< "resmod"_n, user_resources > resources_modifier;
+
 system::system(name s, name code, datastream<const char*> ds)
 : contract(s, code, ds)
 , _rammarket(_self, _self.value)
@@ -99,8 +101,27 @@ void system::setalimits( name account, int64_t ram, int64_t net, int64_t cpu ) {
    require_auth( _self );
    user_resources_table userres( _self, account.value );
    auto ritr = userres.find( account.value );
-   check( ritr == userres.end(), "only supports unlimited accounts" );
-   eosio::set_resource_limits( account, ram, net, cpu );
+   //check( ritr == userres.end(), "only supports unlimited accounts" );
+
+   if (ritr != userres.end()) {
+      resources_modifier resmod(_self, account.value);
+      auto mitr = resmod.find(account.value);
+
+      if (mitr == resmod.end()) {
+         resmod.emplace(account, [&](auto& mod) {
+            mod.owner = account;
+            mod.net_weight = ritr->net_weight;
+            mod.cpu_weight = ritr->cpu_weight;
+            mod.ram_bytes = ritr->ram_bytes;
+         });
+      } else {
+         if (mitr->ram_bytes == ram && mitr->net_weight.amount == net &&  mitr->cpu_weight.amount == cpu) {
+            resmod.erase(mitr);
+         }
+      }
+   }
+ 
+   eosio::set_resource_limits( account, (ram < 0) ? ram : ram + ram_gift_bytes, net, cpu );
 }
 
 void system::init(unsigned_int version, symbol core) {
