@@ -1,5 +1,4 @@
 #include "account_tester.hpp"
-#include "util.hpp"
 
 struct extended_name {
    name name;
@@ -20,20 +19,6 @@ namespace fc {
    }
 }
 FC_REFLECT(grade, (reward)(score)(limit))
-
-std::ostream& operator<<( std::ostream& osm, const fc::mutable_variant_object& v ) {
-   return osm << variant_object(v);
-}
-
-namespace boost { namespace test_tools { namespace tt_detail {
-   template<>
-   struct print_log_value<fc::mutable_variant_object> {
-      void operator()( std::ostream& osm, const fc::mutable_variant_object& v )
-      {
-         ::operator<<(osm, v);
-      }
-   };
-} } }
 
 bool operator == (const variant_object& a, const variant_object& b) {
    return std::equal(a.begin(), a.end(), b.begin(), [](const auto& l, const auto& r) -> bool {
@@ -97,13 +82,6 @@ public:
       return PUSH_ACTION(gacha_account_name, gacha_account_name, (id)(dseed));
    }
 
-   action_result winreward(account_name owner, uint64_t id, int64_t score, extended_asset value) {
-      return PUSH_ACTION(gacha_account_name, gacha_account_name, (owner)(id)(score)(value));
-   }
-
-   action_result raincheck(account_name owner, uint64_t id, int64_t score) {
-      return PUSH_ACTION(gacha_account_name, gacha_account_name, (owner)(id)(score));
-   }
 };
 
 BOOST_AUTO_TEST_SUITE(gxc_gacha_tests)
@@ -236,7 +214,7 @@ BOOST_FIXTURE_TEST_CASE(setoseed_tests, gxc_gacha_tester) try {
 BOOST_FIXTURE_TEST_CASE(setdseed_tests, gxc_gacha_tester) try {
 
    extended_name schm = {.name = N(gachatest), .contract = N(eun2ce)};
-   vector<grade> gd = {{.reward = asset::from_string("1000.00 ENC"), .score= 2, .limit = fc::optional<uint32_t>()},{.reward = asset::from_string("3000.00 ENC"), .score = 1, .limit = fc::optional<uint32_t>()}};
+   vector<grade> gd = {{.reward = asset::from_string("1000.00 ENC"), .score= 254, .limit = fc::optional<uint32_t>()},{.reward = asset::from_string("3000.00 ENC"), .score = 1, .limit = fc::optional<uint32_t>()}};
    string expiration = "2022-01-01T00:00:10";
    string dseedhash = "4855c552bbdd69cef5faee9bcc16a2f6a6b9d5f04560fa6a4045a5195c1f4f75";
    string oseed = "1ba0668f40b6fdd0a2b553a8e5dfe57ee977506532ba437f31f1b72abc199dbe";
@@ -263,6 +241,53 @@ BOOST_FIXTURE_TEST_CASE(setdseed_tests, gxc_gacha_tester) try {
       ("out_count", vector<uint32_t>{1, 0})
       ("issued", 1)
       ("unresolved", 0))
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(conr2d), "ENC@eun2ce"), mvo()
+      ("balance", "1000.00 ENC")
+      ("issuer_", "eun2ce")
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(gxc.gacha), "ENC@eun2ce"), mvo()
+      ("balance", "4000.00 ENC")
+      ("issuer_", "eun2ce")
+   );
+
+   extended_name secschm = {.name = N(gachatest2), .contract = N(conr2d)};
+   vector<grade> secgd = {{.reward = asset::from_string("3000.00 CRD"), .score = 200, .limit = fc::optional<uint32_t>()}, {.reward = asset::from_string("1000.00 CRD"), .score = 1, .limit = fc::optional<uint32_t>()}};
+
+   subopen(secschm, EA("5000.00 CRD@conr2d"));
+   BOOST_REQUIRE_EQUAL(success(), open(secschm, secgd, EA("5000.00 CRD@conr2d"), expiration, 1));
+   issue(N(ian), secschm, dseedhash, 2);
+   BOOST_REQUIRE_EQUAL(success(), setoseed(2, oseed, N(ian)));
+   produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(success(),
+      setdseed(2, "4c519413ac98e5ead1c3b412e5d053ba0d57245e7689e6fcbe6dd9b81aa88dd7")
+   );
+   produce_blocks(1);
+
+   BOOST_REQUIRE_EQUAL(true, get_table_row(gacha_account_name, N(conr2d), N(scheme), N(gachatest2)).get_object() == variant_object(mvo()
+      ("scheme_name", "gachatest2")
+      ("grades", secgd)
+      ("budget", "5000.00 CRD@conr2d")
+      ("expiration", "2022-01-01T00:00:10")
+      ("precision", 1)
+      ("deadline_sec", 604800)
+      ("out", "3000.00 CRD")
+      ("out_count", vector<uint32_t>{1, 0})
+      ("issued", 1)
+      ("unresolved", 0))
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(ian), "CRD@conr2d"), mvo()
+      ("balance", "3000.00 CRD")
+      ("issuer_", "conr2d")
+   );
+
+   REQUIRE_MATCHING_OBJECT(get_account(N(gxc.gacha), "CRD@conr2d"), mvo()
+      ("balance", "2000.00 CRD")
+      ("issuer_", "conr2d")
    );
 
 } FC_LOG_AND_RETHROW()
