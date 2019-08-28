@@ -267,7 +267,7 @@ void bancor::setcharge(int16_t rate, std::optional<extended_asset> fixed, std::o
    require_auth(cfg.get().admin);
 
    if (!smart) {
-      check(rate >= 0 && rate <= 1000, "rate needs to be in the range of 0-1000 (per mille)");
+      check(rate >= 0 && rate <= 10000, "rate needs to be in the range of 0-10000 (permyriad)");
       auto it = cfg.get();
       it.rate = static_cast<uint16_t>(rate);
       if (fixed)
@@ -283,7 +283,7 @@ void bancor::setcharge(int16_t rate, std::optional<extended_asset> fixed, std::o
          return;
       }
 
-      check(rate >= 0 && rate <= 1000, "rate needs to be in the range of 0-1000 (per mille)");
+      check(rate >= 0 && rate <= 10000, "rate needs to be in the range of 0-10000 (permyriad)");
       if (it == chrg.end()) {
          chrg.emplace(_self, [&](auto& c) {
             c.smart = *smart;
