@@ -32,6 +32,13 @@ struct [[eosio::table("global"), eosio::contract("system")]] gxc_global_state : 
    )
 };
 
+struct [[eosio::table("block"), eosio::contract("system")]] block_context {
+   checksum256 id;
+   block_header header;
+
+   EOSLIB_SERIALIZE(block_context, (id)(header))
+};
+
 class [[eosio::contract]] system : public contract {
 public:
    static constexpr name default_account = "gxc"_n;
@@ -68,7 +75,7 @@ public:
    void init(unsigned_int version, symbol core);
 
    [[eosio::action]]
-   void onblock(ignore<block_header> header);
+   void onblock(block_header header);
 
    [[eosio::action]]
    void setprods(std::vector<eosio::producer_key> schedule);
@@ -144,6 +151,7 @@ public:
 
 private:
    using global_state_singleton = eosio::singleton<"global"_n, gxc_global_state>;
+   using block_index = eosio::singleton<"block"_n, block_context>;
    rammarket               _rammarket;
    global_state_singleton  _global;
    gxc_global_state        _gstate;

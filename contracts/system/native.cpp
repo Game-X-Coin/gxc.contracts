@@ -6,13 +6,20 @@
 
 namespace gxc {
 
-void system::onblock(ignore<block_header> header) {
+void system::onblock(block_header header) {
    require_auth(_self);
 
-   block_timestamp timestamp;
-   _ds >> timestamp;
+   char raw[512];
+   datastream<char*> ds(raw, sizeof(raw));
+   ds << header;
 
-   _gstate.last_block_num = timestamp;
+   block_context ctx;
+   ctx.id = eosio::sha256(raw, ds.tellp());
+   reinterpret_cast<uint32_t*>(ctx.id.data())[3] = tapos_block_num();
+   ctx.header = header;
+   block_index(_self, _self.value).set(ctx, _self);
+
+   _gstate.last_block_num = ctx.header.timestamp;
 }
 
 void system::newaccount(name creator, name name, ignore<authority> owner, ignore<authority> active) {
