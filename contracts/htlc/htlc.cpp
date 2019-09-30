@@ -39,9 +39,20 @@ void htlc::newcontract(name owner, string contract_name, std::variant<name, chec
    });
 
    if (owner != vault_account) {
+      auto fee = extended_asset(asset(0, symbol("GXC", 4)), "gxc"_n);
+      if (constrained) {
+         if (it->rate != 0) {
+            int64_t p = 10000 / it->rate;
+            fee.quantity.amount = (value.quantity.amount + p - 1) / p;
+         }
+         fee.quantity += it->fixed;
+      }
+
       token _token;
       _token.authorization = {{_self, "active"_n}};
       _token.transfer(owner, _self, value, "htlc created by " + owner.to_string() + (contract_name.size() ? ": " : "") + contract_name);
+      if (fee.quantity.amount > 0)
+         _token.transfer(owner, _self, fee, "htlc transfer fee");
    }
 }
 

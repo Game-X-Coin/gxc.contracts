@@ -31,7 +31,7 @@ public:
       asset min_amount;
       uint32_t min_duration;
       uint16_t rate;
-      asset fixed;
+      asset fixed = asset{0, symbol("GXC", 4)};
 
       uint64_t primary_key() const { return min_amount.symbol.code().raw(); }
 
