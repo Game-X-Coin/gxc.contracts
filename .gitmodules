@@ -1,3 +1,3 @@
-[submodule "contracts/libsio4"]
-	path = contracts/libsio4
-	url = https://github.com/3OSiO/LiBSiO4
+[submodule "contracts/eostd"]
+	path = contracts/eostd
+	url = https://github.com/b1ockchain/eostd

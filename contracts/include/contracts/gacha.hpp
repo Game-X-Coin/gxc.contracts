@@ -4,8 +4,8 @@
 #include <eosio/asset.hpp>
 #include <eosio/crypto.hpp>
 
-#include <sio4/crypto/xxhash.hpp>
-#include <sio4/bytes.hpp>
+#include <eostd/crypto/xxhash.hpp>
+#include <eostd/bytes.hpp>
 #include <misc/name.hpp>
 #include <misc/action.hpp>
 
@@ -13,7 +13,7 @@ namespace gxc {
 
 using namespace eosio;
 using namespace std;
-using bytes = sio4::bytes;
+using bytes = eostd::bytes;
 
 class [[eosio::contract]] gacha : public contract {
 public:
@@ -59,7 +59,7 @@ public:
          datastream<char*> ds(data.data(), data.size());
          ds << scheme;
          ds << dseedhash.extract_as_byte_array();
-         return sio4::xxh64(data.data(), data.size());
+         return eostd::xxh64(data.data(), data.size());
       }
 
       uint64_t primary_key() const { return id; }

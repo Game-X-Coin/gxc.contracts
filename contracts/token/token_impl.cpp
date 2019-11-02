@@ -261,7 +261,7 @@ void token_impl::withdraw(name from, extended_asset value) {
    _req.refresh_schedule();
 }
 
-void token_impl::cancel_withdraw(name from, sio4::extended_symbol_code symbol) {
+void token_impl::cancel_withdraw(name from, eostd::extended_symbol_code symbol) {
    require_auth(from);
 
    auto _req = request_impl(code(), from, symbol);

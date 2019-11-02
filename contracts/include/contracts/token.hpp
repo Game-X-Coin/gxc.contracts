@@ -2,8 +2,8 @@
 
 #include <eosio/eosio.hpp>
 #include <eosio/asset.hpp>
-#include <sio4/symbol.hpp>
-#include <sio4/binary_extension.hpp>
+#include <eostd/symbol.hpp>
+#include <eostd/binary_extension.hpp>
 #include <misc/hash.hpp>
 #include <misc/option.hpp>
 #include <misc/contract_wrapper.hpp>
@@ -11,7 +11,7 @@
 namespace gxc {
 
 using namespace eosio;
-using sio4::extended_symbol_code;
+using eostd::extended_symbol_code;
 
 class [[eosio::contract]] token : public contract_wrapper<token> {
 public:
@@ -23,7 +23,7 @@ public:
    struct [[eosio::table]] accounts {
       asset balance;
       name issuer_;
-      sio4::binary_extension<asset> deposit;
+      eostd::binary_extension<asset> deposit;
 
       enum opt {
          frozen = 0,
@@ -54,8 +54,8 @@ public:
       name  issuer;
       uint32_t opts = 0x7; // defatuls to mintable, recallable, freezable
 
-      sio4::binary_extension<asset> amount;
-      sio4::binary_extension<uint32_t> duration;
+      eostd::binary_extension<asset> amount;
+      eostd::binary_extension<uint32_t> duration;
 
       enum opt {
          mintable = 0,
