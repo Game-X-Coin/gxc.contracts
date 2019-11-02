@@ -11,10 +11,6 @@ using capi_checksum256 = std::array<uint8_t,32> __attribute__ ((aligned(16)));
 
 namespace eosio {
 
-inline bool operator< (const permission_level& lhs, const permission_level& rhs) {
-   return std::tie(lhs.actor, lhs.permission) < std::tie(rhs.actor, rhs.permission);
-}
-
 struct permission_level_weight {
    permission_level  permission;
    uint16_t          weight;

@@ -1,12 +1,12 @@
 #include <contracts/htlc.hpp>
 #include <eosio/system.hpp>
-#include <sio4/hex.hpp>
+#include <eostd/hex.hpp>
 
 #include "../common/token.cpp"
 
 namespace gxc {
 
-using esc = sio4::extended_symbol_code;
+using esc = eostd::extended_symbol_code;
 
 constexpr name system_account{"gxc"_n};
 constexpr name null_account{"gxc.null"_n};
@@ -86,7 +86,7 @@ void htlc::refund(name owner, string contract_name) {
       check(owner == vault_account, "must not happen");
    } else {
       auto bytes = std::get<checksum160>(it.recipient).extract_as_byte_array();
-      auto str_recipient = sio4::to_hex(reinterpret_cast<const char*>(bytes.data()), bytes.size());
+      auto str_recipient = eostd::to_hex(reinterpret_cast<const char*>(bytes.data()), bytes.size());
       _token.transfer(_self, owner, it.value, "htlc refunded from" + str_recipient + (contract_name.size() ? ": " : "") + contract_name);
    }
 

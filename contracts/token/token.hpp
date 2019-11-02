@@ -1,7 +1,7 @@
 #pragma once
 
 #include <contracts/token.hpp>
-#include <sio4/multi_index_wrapper.hpp>
+#include <eostd/multi_index_wrapper.hpp>
 
 namespace gxc {
 
@@ -22,7 +22,7 @@ class token_impl;
 class account_impl;
 class request_impl;
 
-class account_impl: public sio4::multi_index_wrapper<token::accounts_index> {
+class account_impl: public eostd::multi_index_wrapper<token::accounts_index> {
 public:
    using opt = token::accounts::opt;
 
@@ -77,7 +77,7 @@ private:
    friend class request_impl;
 };
 
-class token_impl: public sio4::multi_index_wrapper<token::stat_index> {
+class token_impl: public eostd::multi_index_wrapper<token::stat_index> {
 public:
    using opt = token::stat::opt;
 
@@ -93,11 +93,11 @@ public:
    void transfer(name from, name to, extended_asset value);
    void deposit(name from, extended_asset value);
    void withdraw(name from, extended_asset value);
-   void cancel_withdraw(name from, sio4::extended_symbol_code symbol);
+   void cancel_withdraw(name from, eostd::extended_symbol_code symbol);
 
    account_impl get_account(name owner) const {
       check(exists(), "token not found");
-      return account_impl(code(), owner, std::hash<sio4::extended_symbol_code>()(sio4::extended_symbol_code{_this->supply.symbol.code(), _this->issuer}), *this);
+      return account_impl(code(), owner, std::hash<eostd::extended_symbol_code>()(eostd::extended_symbol_code{_this->supply.symbol.code(), _this->issuer}), *this);
    }
 
    inline name issuer()const { return scope(); }
@@ -106,16 +106,16 @@ private:
    void _setopts(token::stat& s, const std::vector<option>& opts, bool init = false);
 };
 
-class request_impl : public sio4::multi_index_wrapper<token::withdraws_index> {
+class request_impl : public eostd::multi_index_wrapper<token::withdraws_index> {
 public:
    using multi_index_wrapper::multi_index_wrapper;
 
-   request_impl(name code, name scope, sio4::extended_symbol_code symbol)
-   : multi_index_wrapper(code, scope, std::hash<sio4::extended_symbol_code>()(symbol))
+   request_impl(name code, name scope, eostd::extended_symbol_code symbol)
+   : multi_index_wrapper(code, scope, std::hash<eostd::extended_symbol_code>()(symbol))
    {}
 
    request_impl(name code, name scope, extended_asset value)
-   : multi_index_wrapper(code, scope, std::hash<sio4::extended_symbol_code>()(sio4::extended_symbol_code{value.quantity.symbol.code(), value.contract}))
+   : multi_index_wrapper(code, scope, std::hash<eostd::extended_symbol_code>()(eostd::extended_symbol_code{value.quantity.symbol.code(), value.contract}))
    {}
 
    void refresh_schedule();

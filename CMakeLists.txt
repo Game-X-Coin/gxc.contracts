@@ -14,7 +14,7 @@ endif()
 
 include(ExternalProject)
 
-find_package(eosio.cdt)
+find_package(eoscc)
 
 message(STATUS "Building eosio.contracts v${VERSION_FULL}")
 
@@ -57,7 +57,7 @@ ExternalProject_Add(
    contracts_project
    SOURCE_DIR ${CMAKE_SOURCE_DIR}/contracts
    BINARY_DIR ${CMAKE_BINARY_DIR}/contracts
-   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${EOSIO_CDT_ROOT}/lib/cmake/eosio.cdt/EosioWasmToolchain.cmake -DTARGET_NETWORK=${TARGET_NETWORK_DEFINITION} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
+   CMAKE_ARGS -DCMAKE_TOOLCHAIN_FILE=${EOSIO_CDT_ROOT}/lib/cmake/eoscc/EosioWasmToolchain.cmake -DTARGET_NETWORK=${TARGET_NETWORK_DEFINITION} -DCMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
    UPDATE_COMMAND ""
    PATCH_COMMAND ""
    TEST_COMMAND ""

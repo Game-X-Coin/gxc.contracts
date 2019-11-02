@@ -2,7 +2,7 @@
 #include <contracts/account.hpp>
 #include <eosio/transaction.hpp>
 
-#include <sio4/crypto/drbg.hpp>
+#include <eostd/crypto/drbg.hpp>
 
 #include "../common/token.cpp"
 
@@ -172,13 +172,13 @@ void gacha::draw(uint64_t id, optional<checksum256> dseed) {
       auto hash = eosio::sha256(reinterpret_cast<const char*>(data.data()), data.size());
       check(memcmp((const void*)git.dseedhash.data(), (const void*)hash.data(), 32) == 0, "hash mismatch");
 
-      sio4::byte seed[64];
+      eostd::byte seed[64];
       datastream<uint8_t*> ds(seed, sizeof(seed));
       ds << data;
       ds << git.oseed.extract_as_byte_array();
 
-      sio4::byte result[4];
-      sio4::hash_drbg drbg(seed, sizeof(seed));
+      eostd::byte result[4];
+      eostd::hash_drbg drbg(seed, sizeof(seed));
       drbg.generate_block(&result[0], sizeof(result));
 
       memcpy((void*)&score, (const void*)result, sit.precision);
